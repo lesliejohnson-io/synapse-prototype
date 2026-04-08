@@ -536,10 +536,11 @@ body {
 .dh-blank {}
 .dh { font-family: 'DM Sans', sans-serif; font-size: 9px; color: var(--ink-faint); text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
 .dots-grid { display: flex; flex-direction: column; gap: 5px; }
-.dots-row { display: grid; grid-template-columns: 32px repeat(7, 1fr); gap: 4px; align-items: center; }
+.dots-row { display: grid; grid-template-columns: 32px repeat(7, 1fr); gap: 3px; align-items: center; justify-items: center; }
 .dots-wlabel { font-family: 'DM Sans', sans-serif; font-size: 9px; color: var(--ink-faint); text-align: right; padding-right: 5px; }
 .dot {
-  aspect-ratio: 1;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.15s;
@@ -826,8 +827,8 @@ body {
 
         <!-- Recovery arc -->
         <div>
-          <div class="journey-section-title">18 weeks. Look how far.</div>
-          <div class="journey-section-sub" style="margin-bottom:12px;">Recovery isn't linear — but the direction is real.</div>
+          <div class="journey-section-title">18 weeks and going strong.</div>
+          <div class="journey-section-sub" style="margin-bottom:12px;">Recovery isn't linear, and you're trending up.</div>
           <div class="arc-card">
             <div class="arc-card-inner">
               <div class="arc-top">
