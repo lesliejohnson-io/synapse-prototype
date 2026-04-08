@@ -45,12 +45,12 @@ body {
 .phone-shell {
   width: 390px;
   height: 844px;
-  background: #f0ece6;
+  background: var(--cream);
   border-radius: 48px;
   overflow: hidden;
   position: relative;
   box-shadow:
-    0 0 0 10px #F5F5F5,
+    0 0 0 8px #3A91D3,
     0 40px 80px rgba(0,0,0,0.6);
   display: flex;
   flex-direction: column;
@@ -74,7 +74,7 @@ body {
   top: 0; left: 50%;
   transform: translateX(-50%);
   width: 120px; height: 34px;
-  background: #1c2540;
+  background: #d4cfc8;
   border-radius: 0 0 20px 20px;
   z-index: 100;
 }
@@ -708,9 +708,26 @@ body {
   <div class="status-bar">
     <span class="status-time">9:41</span>
     <div class="status-icons">
-      <span class="status-icon">●●●</span>
-      <span class="status-icon">WiFi</span>
-      <span class="status-icon">100%</span>
+      <!-- Signal bars -->
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--ink)">
+        <rect x="0" y="7" width="3" height="5" rx="1"/>
+        <rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/>
+        <rect x="9" y="2" width="3" height="10" rx="1"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="1"/>
+      </svg>
+      <!-- WiFi -->
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round">
+        <path d="M1 4.5C3.5 2 6.5 1 8 1s4.5 1 7 3.5"/>
+        <path d="M3 7c1.4-1.4 3-2 5-2s3.6.6 5 2"/>
+        <path d="M5.5 9.5C6.2 8.8 7 8.5 8 8.5s1.8.3 2.5 1"/>
+        <circle cx="8" cy="11.5" r="1" fill="var(--ink)" stroke="none"/>
+      </svg>
+      <!-- Battery -->
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+        <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="var(--ink)" stroke-width="1"/>
+        <rect x="2" y="2" width="17" height="8" rx="1.5" fill="var(--ink)"/>
+        <path d="M22.5 4v4" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
     </div>
   </div>
 
