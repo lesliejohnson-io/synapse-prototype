@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Synapse</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:     #f4f6f9;
+  --cream2:    #e8ecf2;
+  --paper:     #ffffff;
+  --border:    #d8dde8;
+  --border-soft:#e4e8f0;
+  --ink:       #1a2035;
+  --ink-soft:  #2e3a52;
+  --ink-mid:   #4a5570;
+  --ink-muted: #7a8499;
+  --ink-faint: #b0b8cc;
+  --sage:      #5272a8;
+  --sage-mid:  #7090c4;
+  --sage-light:#b0c4e4;
+  --sage-pale: #eaf0f8;
+  --rust:      #c48a2a;
+  --rust-pale: #fdf4e0;
+  --rust-light:#f0d49a;
+  --amber:     #c48a2a;
+  --amber-pale:#fdf4e0;
+  --violet:    #5a4a8a;
+  --violet-pale:#f0edf8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; }
+
+body {
+  background: #1c2540;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Phone shell ── */
+.phone-shell {
+  width: 390px;
+  height: 844px;
+  background: var(--cream);
+  border-radius: 48px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 40px 80px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Status bar ── */
+.status-bar {
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px 6px;
+  flex-shrink: 0;
+  z-index: 50;
+}
+.status-time { font-size: 15px; font-weight: 500; color: var(--ink); letter-spacing: -0.02em; }
+.status-icons { display: flex; align-items: center; gap: 6px; }
+.status-icon { font-size: 12px; color: var(--ink-soft); }
+.notch {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 120px; height: 34px;
+  background: #1c2540;
+  border-radius: 0 0 20px 20px;
+  z-index: 100;
+}
+
+/* ── Screen container ── */
+.screens {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--cream);
+  display: none;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+.screen.active { display: block; }
+.screen-enter { animation: screenIn 0.32s cubic-bezier(0.22,1,0.36,1) both; }
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Bottom nav ── */
+.bottom-nav {
+  height: 82px;
+  background: var(--paper);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  flex-shrink: 0;
+  z-index: 50;
+}
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 0 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-tab-icon {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-tab svg { width: 22px; height: 22px; stroke: var(--ink-faint); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s; }
+.nav-tab.active svg { stroke: var(--sage); }
+.nav-tab-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.01em; transition: color 0.2s; }
+.nav-tab.active .nav-tab-label { color: var(--sage); font-weight: 500; }
+.nav-fab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 0 4px;
+  margin-top: -18px;
+}
+.fab-circle {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--sage);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(82,114,168,0.45);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.nav-fab:active .fab-circle { transform: scale(0.93); box-shadow: 0 2px 8px rgba(82,114,168,0.3); }
+.fab-circle svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.nav-fab .nav-tab-label { color: var(--ink-faint); font-size: 10px; }
+
+/* ─────────────────────────────────── */
+/* ── SCREEN 1: TODAY ── */
+/* ─────────────────────────────────── */
+.today-header {
+  padding: 20px 24px 16px;
+}
+.today-greeting {
+  font-family: 'Lora', serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+.today-greeting em { font-style: italic; color: var(--sage); }
+.today-meta {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+}
+.today-body { padding: 0 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Priority card */
+.priority-card {
+  background: var(--sage-pale);
+  border: 1px solid var(--sage-light);
+  border-radius: 20px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.priority-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--sage);
+  border-radius: 3px 3px 0 0;
+}
+.priority-card:active { transform: scale(0.98); }
+.priority-card.urgent::before { background: var(--rust); }
+.priority-card.urgent { background: var(--rust-pale); border-color: var(--rust-light); }
+.pc-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 7px;
+}
+.priority-card.urgent .pc-eyebrow { color: var(--rust); }
+.pc-title {
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 5px;
+}
+.pc-sub { font-size: 13px; color: var(--ink-mid); line-height: 1.4; }
+.pc-action {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sage);
+}
+.priority-card.urgent .pc-action { color: var(--rust); }
+.pc-arrow { font-size: 14px; transition: transform 0.2s; }
+.priority-card:hover .pc-arrow { transform: translateX(3px); }
+
+/* Secondary cards */
+.secondary-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.secondary-card:active { background: var(--cream2); }
+.sc-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Lora', serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+.sc-body { flex: 1; }
+.sc-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.sc-sub { font-size: 12px; color: var(--ink-muted); }
+.sc-badge {
+  background: var(--rust);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  border-radius: 10px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+}
+.sc-chev { color: var(--ink-faint); font-size: 16px; flex-shrink: 0; }
+
+/* Caregiver note */
+.caregiver-note {
+  background: var(--paper);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 16px 18px;
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-mid);
+  line-height: 1.65;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* Section divider */
+.s-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0 0;
+}
+.s-divider-line { flex: 1; height: 1px; background: var(--border-soft); }
+.s-divider-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ─────────────────────────────────── */
+/* ── SCREEN 2: TRANSLATE ── */
+/* ─────────────────────────────────── */
+.translate-header {
+  padding: 20px 24px 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.translate-title {
+  font-family: 'Lora', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.translate-sub { font-size: 13px; color: var(--ink-muted); line-height: 1.5; }
+.translate-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+.new-note-pill {
+  background: var(--rust-pale);
+  border: 1px solid var(--rust-light);
+  border-radius: 14px;
+  padding: 13px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.new-note-pill:active { background: #f0e0d4; }
+.np-from {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 5px;
+}
+.np-quote {
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.np-action { font-size: 12px; font-weight: 500; color: var(--rust); display: flex; align-items: center; gap: 4px; }
+
+.translate-input-wrap { position: relative; }
+.translate-textarea {
+  width: 100%;
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 13px 14px 44px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  resize: none;
+  height: 100px;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+.translate-textarea:focus { border-color: var(--sage); }
+.translate-textarea::placeholder { color: var(--ink-faint); }
+.translate-send {
+  position: absolute;
+  right: 10px; bottom: 10px;
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 7px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: background 0.15s, transform 0.1s;
+}
+.translate-send:active { transform: scale(0.96); background: #3a5890; }
+.translate-send.loading { opacity: 0.7; pointer-events: none; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:active { background: var(--sage-pale); border-color: var(--sage-light); color: var(--sage); }
+
+.result-wrap {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: none;
+  animation: resultIn 0.35s ease-out;
+}
+.result-wrap.visible { display: block; }
+@keyframes resultIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.result-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.result-eyebrow::after { content:''; flex:1; height:1px; background:var(--border-soft); }
+.result-text {
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+.result-text strong { font-weight: 600; color: var(--ink); }
+.questions-label { font-size: 12px; font-weight: 500; color: var(--ink-muted); margin-bottom: 8px; }
+.q-row {
+  display: flex; gap: 9px; align-items: flex-start;
+  padding: 8px 10px;
+  background: var(--sage-pale);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+.q-row:active { background: var(--sage-light); }
+.q-row:last-child { margin-bottom: 0; }
+.q-chevron { color: var(--sage); font-size: 12px; margin-top: 1px; flex-shrink: 0; }
+.q-add-hint { font-size: 11px; color: var(--ink-faint); text-align: center; margin-top: 8px; font-style: italic; font-family: 'Lora', serif; }
+
+/* spinner */
+.spin { width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spinA 0.7s linear infinite;flex-shrink:0; }
+@keyframes spinA { to{transform:rotate(360deg)} }
+
+/* ─────────────────────────────────── */
+/* ── SCREEN 3: JOURNEY ── */
+/* ─────────────────────────────────── */
+.journey-body { padding: 20px 20px 32px; display: flex; flex-direction: column; gap: 20px; }
+
+.journey-section-title {
+  font-family: 'Lora', serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.journey-section-sub { font-size: 13px; color: var(--ink-muted); line-height: 1.5; }
+
+/* Arc card */
+.arc-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(30,27,23,0.06);
+}
+.arc-card-inner { padding: 18px 18px 14px; }
+.arc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.arc-badge {
+  background: var(--sage-pale);
+  border: 1px solid var(--sage-light);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: var(--sage);
+}
+.arc-svg { width: 100%; display: block; }
+.arc-callout {
+  background: var(--cream2);
+  border-left: 3px solid var(--sage);
+  padding: 10px 14px;
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 12px 18px 14px;
+  border-radius: 0 10px 10px 0;
+}
+.arc-callout strong { font-style: normal; color: var(--sage); font-weight: 600; }
+
+/* Appointment */
+.appt-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 2px 10px rgba(30,27,23,0.06);
+}
+.appt-left {
+  background: var(--sage);
+  padding: 20px 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 76px;
+}
+.appt-num { font-family: 'Lora', serif; font-size: 40px; font-weight: 400; color: #fff; line-height: 1; }
+.appt-unit { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.08em; color: rgba(255,255,255,0.65); text-transform: uppercase; margin-top: 2px; }
+.appt-right { padding: 16px 16px; flex: 1; }
+.appt-with { font-family: 'Lora', serif; font-size: 16px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.appt-when { font-size: 12px; color: var(--ink-muted); margin-bottom: 12px; }
+.appt-qs-label { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 7px; }
+.appt-q-item {
+  display: flex; gap: 8px; align-items: flex-start;
+  font-size: 12px; color: var(--ink-soft); line-height: 1.4;
+  padding: 6px 8px; background: var(--cream); border-radius: 8px;
+  margin-bottom: 5px; cursor: pointer; transition: all 0.15s;
+}
+.appt-q-item:active { background: var(--sage-pale); }
+.appt-check { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink-faint); flex-shrink: 0; margin-top: 1px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.appt-q-item.done .appt-check { background: var(--sage); border-color: var(--sage); }
+.appt-q-item.done .appt-check::after { content:''; width:5px;height:3px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px);display:block; }
+.appt-q-item.done { opacity: 0.55; }
+
+/* Dots calendar */
+.dots-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 2px 10px rgba(30,27,23,0.06);
+}
+.day-headers { display: grid; grid-template-columns: 32px repeat(7, 1fr); gap: 4px; margin-bottom: 5px; }
+.dh-blank {}
+.dh { font-family: 'DM Sans', sans-serif; font-size: 9px; color: var(--ink-faint); text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
+.dots-grid { display: flex; flex-direction: column; gap: 5px; }
+.dots-row { display: grid; grid-template-columns: 32px repeat(7, 1fr); gap: 4px; align-items: center; }
+.dots-wlabel { font-family: 'DM Sans', sans-serif; font-size: 9px; color: var(--ink-faint); text-align: right; padding-right: 5px; }
+.dot {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s;
+  position: relative;
+}
+.dot:hover { transform: scale(1.2); z-index: 5; }
+.dot.e  { background: var(--cream2); border: 1px solid var(--border-soft); }
+.dot.l1 { background: #b0c4e4; }
+.dot.l2 { background: #90aad4; }
+.dot.l3 { background: #6888c0; }
+.dot.l4 { background: var(--sage); }
+.dot.l5 { background: #2e4a80; }
+.dot.hd { background: var(--rust-pale); border: 1.5px solid var(--rust-light); }
+.dot.td { background: var(--sage); box-shadow: 0 0 0 2.5px var(--sage-pale), 0 0 0 4px var(--sage); }
+.dots-legend { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-muted); }
+.leg-dot { width: 9px; height: 9px; border-radius: 50%; }
+.dots-insight {
+  background: var(--sage-pale);
+  border-left: 3px solid var(--sage);
+  padding: 10px 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  border-radius: 0 10px 10px 0;
+}
+.dots-insight strong { color: var(--sage); font-weight: 500; }
+
+/* ─────────────────────────────────── */
+/* ── SCREEN 4: COMMUNITY ── */
+/* ─────────────────────────────────── */
+.community-header { padding: 20px 24px 14px; border-bottom: 1px solid var(--border-soft); }
+.community-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+.community-sub { font-size: 13px; color: var(--ink-muted); }
+.community-body { padding: 14px 20px 32px; display: flex; flex-direction: column; gap: 0; }
+
+.thread {
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--border-soft);
+  cursor: pointer;
+  border-radius: 12px;
+  margin: 0 -4px;
+  padding: 13px 8px;
+  transition: background 0.15s;
+}
+.thread:last-child { border-bottom: none; }
+.thread:active { background: var(--cream2); }
+.thread-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
+.thread-title { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.35; flex: 1; }
+.thread-tag {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.tt-week { background: var(--sage-pale); color: var(--sage); border: 1px solid var(--sage-light); }
+.tt-tips { background: var(--cream2); color: var(--ink-mid); border: 1px solid var(--border); }
+.tt-qa   { background: var(--rust-pale); color: var(--rust); border: 1px solid var(--rust-light); }
+.tt-grief{ background: var(--violet-pale); color: var(--violet); border: 1px solid #c8b8f0; }
+.thread-preview { font-size: 13px; color: var(--ink-muted); line-height: 1.4; margin-bottom: 8px; }
+.thread-meta { display: flex; align-items: center; gap: 8px; }
+.t-faces { display: flex; }
+.t-face {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 500; color: #fff;
+  margin-left: -5px;
+}
+.t-face:first-child { margin-left: 0; }
+.t-count { font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--ink-faint); }
+
+/* ── QUICK NOTE overlay ── */
+.note-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  flex-direction: column;
+}
+.note-overlay.open { display: flex; }
+.note-backdrop {
+  background: rgba(30,27,23,0.55);
+  flex: 1;
+}
+.note-sheet {
+  background: var(--paper);
+  border-radius: 24px 24px 0 0;
+  padding: 20px 20px 40px;
+  animation: sheetUp 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes sheetUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.note-sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+.note-sheet-title { font-family: 'Lora', serif; font-size: 18px; font-weight: 500; color: var(--ink); margin-bottom: 12px; }
+.note-textarea {
+  width: 100%;
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  resize: none;
+  height: 110px;
+  outline: none;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.note-textarea:focus { border-color: var(--sage); }
+.note-textarea::placeholder { color: var(--ink-faint); }
+.note-tags { display: flex; gap: 7px; margin-bottom: 14px; flex-wrap: wrap; }
+.note-tag-btn {
+  background: var(--cream2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.note-tag-btn.sel { background: var(--sage-pale); border-color: var(--sage-light); color: var(--sage); font-weight: 500; }
+.note-save-btn {
+  width: 100%;
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.01em;
+}
+.note-save-btn:active { transform: scale(0.98); background: #3a5890; }
+
+/* Stagger animations */
+.stagger > * { opacity: 0; animation: staggerIn 0.4s ease-out forwards; }
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.12s; }
+.stagger > *:nth-child(3) { animation-delay: 0.19s; }
+.stagger > *:nth-child(4) { animation-delay: 0.26s; }
+.stagger > *:nth-child(5) { animation-delay: 0.33s; }
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- Phone shell -->
+<div class="phone-shell">
+  <div class="notch"></div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <span class="status-icon">●●●</span>
+      <span class="status-icon">WiFi</span>
+      <span class="status-icon">100%</span>
+    </div>
+  </div>
+
+  <!-- Screens -->
+  <div class="screens">
+
+    <!-- ① TODAY -->
+    <div class="screen active screen-enter" id="screen-today">
+      <div class="today-header">
+        <div class="today-greeting">Good morning,<br><em>Jamie.</em></div>
+        <div class="today-meta">Thu, Mar 19 &nbsp;·&nbsp; David, Week 18</div>
+      </div>
+      <div class="today-body stagger">
+        <div class="priority-card urgent" onclick="goToTranslate()">
+          <div class="pc-eyebrow">Right now</div>
+          <div class="pc-title">Dr. Park left a note after yesterday's visit</div>
+          <div class="pc-sub">"mild improvement in executive function, continued post-traumatic amnesia"</div>
+          <div class="pc-action">Translate it <span class="pc-arrow">→</span></div>
+        </div>
+
+        <div class="s-divider">
+          <div class="s-divider-line"></div>
+          <div class="s-divider-label">Also today</div>
+          <div class="s-divider-line"></div>
+        </div>
+
+        <div class="secondary-card" onclick="goToJourney()">
+          <div class="sc-icon" style="background:var(--sage-pale);color:var(--sage);font-size:20px;font-weight:500;">5</div>
+          <div class="sc-body">
+            <div class="sc-title">Days until neurology</div>
+            <div class="sc-sub">2 prep questions saved — add more</div>
+          </div>
+          <div class="sc-chev">›</div>
+        </div>
+
+        <div class="secondary-card" onclick="showTab('community')">
+          <div class="sc-icon" style="background:var(--cream2);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-mid)" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="sc-body">
+            <div class="sc-title">Week-18 fatigue thread</div>
+            <div class="sc-sub">14 replies — active now</div>
+          </div>
+          <div class="sc-badge">new</div>
+        </div>
+
+        <div class="caregiver-note">
+          "You've checked in 17 of the last 21 days.<br>That consistency is part of his healing."
+        </div>
+      </div>
+    </div>
+
+    <!-- ② TRANSLATE -->
+    <div class="screen" id="screen-translate">
+      <div class="translate-header">
+        <div class="translate-title">What did they<br>actually mean?</div>
+        <div class="translate-sub">Plain language, always one tap away.</div>
+      </div>
+      <div class="translate-body">
+        <div class="new-note-pill" id="notePill" onclick="loadDrNote()">
+          <div class="np-from">New · Dr. Park · 2h ago</div>
+          <div class="np-quote">"mild improvement in executive function, continued post-traumatic amnesia"</div>
+          <div class="np-action">Translate this note →</div>
+        </div>
+
+        <div class="translate-input-wrap">
+          <textarea class="translate-textarea" id="tInput" placeholder="Type or paste any medical term, note, or phrase…"></textarea>
+          <button class="translate-send" id="tBtn" onclick="doTranslate()">
+            <span id="tBtnText">Translate</span>
+          </button>
+        </div>
+
+        <div class="chips">
+          <div class="chip" onclick="fillChip('post-traumatic amnesia')">post-traumatic amnesia</div>
+          <div class="chip" onclick="fillChip('executive function')">executive function</div>
+          <div class="chip" onclick="fillChip('diffuse axonal injury')">diffuse axonal injury</div>
+          <div class="chip" onclick="fillChip('GCS score 14')">GCS 14</div>
+          <div class="chip" onclick="fillChip('cognitive fatigue TBI')">cognitive fatigue</div>
+        </div>
+
+        <div class="result-wrap" id="resultWrap">
+          <div class="result-eyebrow">In plain language</div>
+          <div class="result-text" id="resultText"></div>
+          <div id="questionsSection" style="display:none">
+            <div class="questions-label">Questions to ask Dr. Park</div>
+            <div id="questionsList"></div>
+            <div class="q-add-hint">Tap any question to add it to your appointment prep</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ JOURNEY -->
+    <div class="screen" id="screen-journey">
+      <div class="journey-body">
+
+        <!-- Recovery arc -->
+        <div>
+          <div class="journey-section-title">18 weeks. Look how far.</div>
+          <div class="journey-section-sub" style="margin-bottom:12px;">Recovery isn't linear — but the direction is real.</div>
+          <div class="arc-card">
+            <div class="arc-card-inner">
+              <div class="arc-top">
+                <div>
+                  <div style="font-size:13px;font-weight:500;color:var(--ink);">David's recovery arc</div>
+                  <div style="font-size:11px;color:var(--ink-muted);">Weeks 1–18</div>
+                </div>
+                <div class="arc-badge">Wk 18 of 52</div>
+              </div>
+              <svg class="arc-svg" viewBox="0 0 310 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#5272a8" stop-opacity="0.15"/>
+                    <stop offset="100%" stop-color="#5272a8" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="28" x2="310" y2="28" stroke="#dde2ec" stroke-width="1"/>
+                <line x1="0" y1="56" x2="310" y2="56" stroke="#dde2ec" stroke-width="1"/>
+                <line x1="0" y1="84" x2="310" y2="84" stroke="#dde2ec" stroke-width="1"/>
+                <text x="4" y="26" font-family="DM Sans" font-size="7" fill="#b0b8cc">High</text>
+                <text x="4" y="54" font-family="DM Sans" font-size="7" fill="#b0b8cc">Mid</text>
+                <text x="4" y="82" font-family="DM Sans" font-size="7" fill="#b0b8cc">Low</text>
+                <path d="M24,94 C36,91 44,86 54,83 C64,80 70,82 80,77 C90,72 95,75 105,68 C115,61 120,64 130,57 C140,50 145,53 155,46 C165,39 170,42 180,35 C188,30 192,28 200,24" fill="url(#ag)"/>
+                <path d="M24,94 C36,91 44,86 54,83 C64,80 70,82 80,77 C90,72 95,75 105,68 C115,61 120,64 130,57 C140,50 145,53 155,46 C165,39 170,42 180,35 C188,30 192,28 200,24" stroke="#5272a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M200,24 C212,20 222,17 234,13 C246,9 258,7 270,4" stroke="#5272a8" stroke-width="1.5" stroke-dasharray="4,5" stroke-linecap="round" opacity="0.3"/>
+                <circle cx="54" cy="83" r="3.5" fill="#f4f6f9" stroke="#b0b8cc" stroke-width="1.5"/>
+                <circle cx="105" cy="68" r="3.5" fill="#f4f6f9" stroke="#7090c4" stroke-width="1.5"/>
+                <circle cx="155" cy="46" r="4" fill="#f4f6f9" stroke="#5272a8" stroke-width="2"/>
+                <circle cx="180" cy="38" r="3.5" fill="#f4f6f9" stroke="#c48a2a" stroke-width="1.5"/>
+                <circle cx="200" cy="24" r="5.5" fill="#5272a8"/>
+                <circle cx="200" cy="24" r="9" fill="#5272a8" opacity="0.15"/>
+                <text x="204" y="19" font-family="DM Sans" font-size="8" fill="#5272a8" font-weight="500">now</text>
+                <text x="43" y="102" font-family="DM Sans" font-size="7" fill="#b0b8cc">Wk 3</text>
+                <text x="96" y="82" font-family="DM Sans" font-size="7" fill="#7090c4">Wk 7</text>
+                <text x="144" y="60" font-family="DM Sans" font-size="7" fill="#5272a8">Wk 12</text>
+                <text x="168" y="53" font-family="DM Sans" font-size="7" fill="#c48a2a">Wk 15</text>
+              </svg>
+            </div>
+            <div class="arc-callout">
+              <strong>Week 12 was the turn.</strong> David formed full sentences unprompted. You logged it at 7am. You were the first to know.
+            </div>
+          </div>
+        </div>
+
+        <!-- Appointment countdown -->
+        <div>
+          <div class="journey-section-title" style="margin-bottom:10px;">Next appointment</div>
+          <div class="appt-card">
+            <div class="appt-left">
+              <div class="appt-num">5</div>
+              <div class="appt-unit">days</div>
+            </div>
+            <div class="appt-right">
+              <div class="appt-with">Dr. Park — Neurology</div>
+              <div class="appt-when">Tue, Mar 24 · 2:00 PM</div>
+              <div class="appt-qs-label">Prep questions</div>
+              <div class="appt-q-item" onclick="this.classList.toggle('done')">
+                <div class="appt-check"></div>
+                <span>What does "continued PTA" mean for David's daily routine?</span>
+              </div>
+              <div class="appt-q-item" onclick="this.classList.toggle('done')">
+                <div class="appt-check"></div>
+                <span>What milestone should we watch for next?</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Symptom dots -->
+        <div>
+          <div class="journey-section-title">Your observations</div>
+          <div class="journey-section-sub" style="margin-bottom:12px;">Each dot is a day you checked in. Your words, made visible.</div>
+          <div class="dots-card">
+            <div class="day-headers">
+              <div class="dh-blank"></div>
+              <div class="dh">M</div><div class="dh">T</div><div class="dh">W</div>
+              <div class="dh">T</div><div class="dh">F</div><div class="dh">S</div><div class="dh">S</div>
+            </div>
+            <div class="dots-grid" id="dotsGrid"></div>
+            <div class="dots-legend">
+              <div class="leg"><div class="leg-dot" style="background:#b0c4e4"></div>quiet</div>
+              <div class="leg"><div class="leg-dot" style="background:#5272a8"></div>good day</div>
+              <div class="leg"><div class="leg-dot" style="background:var(--rust-pale);border:1px solid var(--rust-light)"></div>hard day</div>
+            </div>
+            <div class="dots-insight">
+              <strong>You've shown up 18 of the last 21 days.</strong> Tuesdays tend to run harder — usually after a full weekend.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ④ COMMUNITY -->
+    <div class="screen" id="screen-community">
+      <div class="community-header">
+        <div class="community-title">You're not alone<br>in this.</div>
+        <div class="community-sub">TBI Caregiver Circle · 847 members</div>
+      </div>
+      <div class="community-body">
+        <div class="thread">
+          <div class="thread-top">
+            <div class="thread-title">Week-18 fatigue — 14 hours of sleep, is this healing or regression?</div>
+            <span class="thread-tag tt-week">Wk 18</span>
+          </div>
+          <div class="thread-preview">"My neurologist called it cognitive fatigue — the brain rebuilding while you sleep. Peaked week 16 for us, eased by week 22…"</div>
+          <div class="thread-meta">
+            <div class="t-faces">
+              <div class="t-face" style="background:#5272a8">S</div>
+              <div class="t-face" style="background:#5e6e90">M</div>
+              <div class="t-face" style="background:#c48a2a">R</div>
+              <div class="t-face" style="background:#5a4a8a">T</div>
+            </div>
+            <span class="t-count">14 replies · active 20m ago</span>
+          </div>
+        </div>
+
+        <div class="thread">
+          <div class="thread-top">
+            <div class="thread-title">How to stay calm when you don't understand what the doctor is saying?</div>
+            <span class="thread-tag tt-tips">Tips</span>
+          </div>
+          <div class="thread-preview">"I write words down phonetically, translate after. No shame asking them to write it down. That's literally what the translator tab is for…"</div>
+          <div class="thread-meta">
+            <div class="t-faces">
+              <div class="t-face" style="background:#c48a2a">A</div>
+              <div class="t-face" style="background:#5272a8">L</div>
+            </div>
+            <span class="t-count">8 replies · active 4h ago</span>
+          </div>
+        </div>
+
+        <div class="thread">
+          <div class="thread-top">
+            <div class="thread-title">What questions should I bring to neurology at this stage of recovery?</div>
+            <span class="thread-tag tt-qa">Q&amp;A</span>
+          </div>
+          <div class="thread-preview">"Always ask what the next milestone looks like. Doctors assume you know what 'good progress' means — make them define it for your situation."</div>
+          <div class="thread-meta">
+            <div class="t-faces">
+              <div class="t-face" style="background:#5e6e90">C</div>
+              <div class="t-face" style="background:#5272a8">J</div>
+              <div class="t-face" style="background:#c48a2a">K</div>
+            </div>
+            <span class="t-count">22 replies · active 1h ago</span>
+          </div>
+        </div>
+
+        <div class="thread">
+          <div class="thread-top">
+            <div class="thread-title">For the caregivers who are also grieving — you're allowed to feel both things at once</div>
+            <span class="thread-tag tt-grief">Support</span>
+          </div>
+          <div class="thread-preview">"I love him and I grieve the person he was before the injury. Both are true. Both are allowed. You don't have to choose…"</div>
+          <div class="thread-meta">
+            <div class="t-faces">
+              <div class="t-face" style="background:#5a4a8a">P</div>
+              <div class="t-face" style="background:#5272a8">N</div>
+              <div class="t-face" style="background:#5e6e90">D</div>
+              <div class="t-face" style="background:#c48a2a">E</div>
+            </div>
+            <span class="t-count">41 replies · active 30m ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- Quick note overlay -->
+  <div class="note-overlay" id="noteOverlay">
+    <div class="note-backdrop" onclick="closeNote()"></div>
+    <div class="note-sheet">
+      <div class="note-sheet-handle"></div>
+      <div class="note-sheet-title">What did you notice?</div>
+      <textarea class="note-textarea" id="noteText" placeholder="Write it down before you forget — a word David used, something you observed, a question that just came to mind…"></textarea>
+      <div class="note-tags" id="noteTags">
+        <div class="note-tag-btn" onclick="toggleTag(this)">good moment</div>
+        <div class="note-tag-btn" onclick="toggleTag(this)">hard moment</div>
+        <div class="note-tag-btn" onclick="toggleTag(this)">symptom</div>
+        <div class="note-tag-btn" onclick="toggleTag(this)">question</div>
+        <div class="note-tag-btn" onclick="toggleTag(this)">for Dr. Park</div>
+      </div>
+      <button class="note-save-btn" onclick="saveNote()">Save observation</button>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <div class="nav-tab active" id="tab-today" onclick="showTab('today')">
+      <div class="nav-tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="nav-tab-label">Today</div>
+    </div>
+    <div class="nav-tab" id="tab-translate" onclick="showTab('translate')">
+      <div class="nav-tab-icon">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <div class="nav-tab-label">Translate</div>
+    </div>
+    <div class="nav-fab" onclick="openNote()">
+      <div class="fab-circle">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <div class="nav-tab-label">Note</div>
+    </div>
+    <div class="nav-tab" id="tab-journey" onclick="showTab('journey')">
+      <div class="nav-tab-icon">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="nav-tab-label">Journey</div>
+    </div>
+    <div class="nav-tab" id="tab-community" onclick="showTab('community')">
+      <div class="nav-tab-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div class="nav-tab-label">Community</div>
+    </div>
+  </div>
+
+</div><!-- /phone-shell -->
+
+<script>
+const tabs = ['today','translate','journey','community'];
+
+function showTab(name) {
+  tabs.forEach(t => {
+    const screen = document.getElementById('screen-'+t);
+    const tab = document.getElementById('tab-'+t);
+    if (t === name) {
+      screen.classList.add('active','screen-enter');
+      if (tab) tab.classList.add('active');
+      setTimeout(() => screen.classList.remove('screen-enter'), 400);
+    } else {
+      screen.classList.remove('active','screen-enter');
+      if (tab) tab.classList.remove('active');
+    }
+  });
+}
+
+function goToTranslate() {
+  showTab('translate');
+  setTimeout(() => {
+    loadDrNote();
+  }, 300);
+}
+
+function goToJourney() { showTab('journey'); }
+
+function loadDrNote() {
+  const ta = document.getElementById('tInput');
+  ta.value = 'mild improvement in executive function, continued post-traumatic amnesia';
+  document.getElementById('notePill').style.display = 'none';
+  ta.focus();
+}
+
+function fillChip(term) {
+  document.getElementById('tInput').value = term;
+  document.getElementById('resultWrap').classList.remove('visible');
+  document.getElementById('tInput').focus();
+}
+
+const MOCK_RESPONSES = {
+  'mild improvement in executive function, continued post-traumatic amnesia': {
+    explanation: `Dr. Park is sharing two things here, and both are actually meaningful together.\n\n<strong>"Mild improvement in executive function"</strong> means David is getting a little better at the mental tasks that help him plan, organize, and make decisions — things like following a multi-step conversation, remembering to do something he said he would, or switching between two topics without getting lost. You may have already noticed this without having a name for it.\n\n<strong>"Continued post-traumatic amnesia"</strong> means his brain is still in a phase where forming new consistent memories is unreliable. This is very normal at week 18 after a moderate TBI. It doesn't mean he won't get there — it means the brain is still doing repair work that hasn't fully completed yet. Days that seem like setbacks are usually part of this phase, not signs of regression.\n\nTaken together, this note is actually cautiously hopeful. Progress is happening — it's just slower and less linear than we'd like.`,
+    questions: [
+      'What would "resolved" post-traumatic amnesia look like for David, and what typically triggers that shift?',
+      'Are there specific things we should be doing at home — or avoiding — during this phase that could help the memory consolidation process?',
+      'How will we know when executive function has improved enough to affect his daily independence?'
+    ]
+  },
+  'post-traumatic amnesia': {
+    explanation: `Post-traumatic amnesia — often shortened to PTA — is a period after a brain injury when someone has difficulty forming new memories in a reliable way. It doesn't necessarily mean David can't remember anything — it means his brain's ability to consistently record and retrieve new information is still impaired.\n\nThink of it like a recording device that keeps working but sometimes skips. He might remember a conversation clearly one day and have no memory of it the next. He might seem fully present in the moment but not retain it afterward.\n\n<strong>This is one of the most common and expected parts of TBI recovery.</strong> The length of the PTA phase is actually used by doctors as a predictor of recovery — the fact that David is still in it at week 18 after a moderate-to-severe injury is within the expected range. It does tend to resolve, often somewhat suddenly rather than gradually.`,
+    questions: [
+      'How long do you expect David\'s PTA phase to last, based on what you\'ve seen so far?',
+      'Should I be keeping a log of what he does and doesn\'t remember, to help track when this is resolving?',
+      'Is there anything about the way I\'m communicating with him at home that could help, given that he\'s in this phase?'
+    ]
+  },
+  'executive function': {
+    explanation: `Executive function is the brain's management system — it's what helps a person plan ahead, stay organized, control impulses, and shift between tasks smoothly.\n\nAfter a TBI, this is one of the areas most commonly affected, because it's largely handled by the frontal lobes, which are vulnerable to injury. You might notice it as David having trouble starting tasks even when he wants to do them, getting stuck on one thing and struggling to move on, having difficulty with decisions that used to be easy, or losing track of a conversation when it shifts topics.\n\n<strong>The good news is that executive function is one of the areas with the most potential for recovery</strong>, especially with consistent routine and cognitive rehabilitation. The improvements tend to compound — small wins in one area support progress in others.`,
+    questions: [
+      'What does the current level of executive function impairment mean for David\'s ability to be left alone safely?',
+      'Are there specific exercises or routines we can build into the day that support executive function recovery?',
+      'How does the OT work he\'s doing connect to executive function — should we be tracking anything specific there?'
+    ]
+  },
+  'diffuse axonal injury': {
+    explanation: `A diffuse axonal injury — sometimes called DAI — happens when the brain moves rapidly inside the skull during the injury, stretching and damaging the long fibers that carry signals between different parts of the brain. "Diffuse" means it's spread across multiple areas rather than concentrated in one spot.\n\nIt's one of the most common types of TBI injury, and it explains why TBI recovery can feel so uneven — different functions can be affected in different combinations depending on which connections were disrupted.\n\n<strong>Here's what's important to understand:</strong> the brain has remarkable ability to build new pathways around damaged ones. This is called neuroplasticity, and it's the biological basis for why TBI recovery can continue for months or even years. The work David is doing in therapy — and the consistency of his daily environment — directly supports this process.`,
+    questions: [
+      'Based on the imaging you\'ve seen, which areas of the brain were most affected by the axonal injury?',
+      'Does DAI affect the expected timeline for recovery compared to a more localized injury?',
+      'Is there anything specific about DAI that changes how we should approach his therapy or daily routine?'
+    ]
+  },
+  'gcs score 14': {
+    explanation: `The Glasgow Coma Scale — GCS — is a scoring system doctors use to quickly assess how alert and responsive someone is after a brain injury. It scores three things: eye opening, verbal response, and movement, with a maximum score of 15.\n\n<strong>A score of 14 is considered a mild TBI</strong> at the time of initial assessment — just one point below the maximum. This is actually meaningful context for David's recovery. It suggests that at the point of injury, his level of consciousness was only minimally impaired, which tends to be associated with better recovery outcomes.\n\nIt's worth knowing that the GCS score at the time of injury is just one data point — it doesn't capture the full picture of what the brain experienced or how recovery will unfold. Many people with GCS 14 still experience significant symptoms during recovery.`,
+    questions: [
+      'Given David\'s initial GCS of 14, what does the research say about typical recovery timelines for someone at his stage?',
+      'Are there other early measurements from his injury — like the length of post-traumatic amnesia — that give you more information about prognosis?',
+      'Should I understand his current challenges as typical for a GCS 14 injury, or has his recovery been more complicated than expected?'
+    ]
+  },
+  'cognitive fatigue tbi': {
+    explanation: `Cognitive fatigue after a TBI is one of the most misunderstood parts of recovery — and one of the most exhausting for caregivers to witness, because it can look like laziness or mood changes when it's actually something very physical.\n\nAfter a brain injury, the brain has to work significantly harder than before to do things that used to be automatic — following a conversation, reading, making decisions, even processing background noise. <strong>This extra effort depletes mental energy much faster than it did before the injury.</strong>\n\nWhen David hits a wall — suddenly becoming irritable, withdrawn, confused, or unable to engage — that's almost certainly cognitive fatigue, not a setback or a bad day. The brain is genuinely out of fuel.\n\nThe most effective response is usually a true rest — low stimulation, low demand, quiet space. Sleep is the most restorative. This is why David's long sleep periods are likely a sign of healing, not regression.`,
+    questions: [
+      'How do we find the right balance between pushing David to engage and giving him enough rest — how do we know when we\'ve done too much?',
+      'Are there early warning signs of cognitive fatigue I should learn to recognize before he hits the wall?',
+      'Does cognitive fatigue typically improve over time with TBI recovery, and if so, at what stage does that usually shift?'
+    ]
+  }
+};
+
+const FALLBACK_RESPONSE = {
+  explanation: `This is a prototype demonstration — in the full version of Synapse, this term would be translated into plain language by an AI trained specifically to support TBI caregivers.\n\nFor now, try one of the quick-access terms below, or tap the Dr. Park note at the top to see a full example translation.`,
+  questions: [
+    'What does this term mean for David\'s day-to-day life right now?',
+    'Is this something we should expect to change as recovery progresses?',
+    'Are there things I should be watching for at home related to this?'
+  ]
+};
+
+function getMockResponse(input) {
+  const normalized = input.toLowerCase().trim();
+  for (const [key, val] of Object.entries(MOCK_RESPONSES)) {
+    if (normalized.includes(key.toLowerCase()) || key.toLowerCase().includes(normalized)) {
+      return val;
+    }
+  }
+  if (normalized.includes('amnesia')) return MOCK_RESPONSES['post-traumatic amnesia'];
+  if (normalized.includes('executive')) return MOCK_RESPONSES['executive function'];
+  if (normalized.includes('axonal') || normalized.includes('dai')) return MOCK_RESPONSES['diffuse axonal injury'];
+  if (normalized.includes('gcs') || normalized.includes('glasgow')) return MOCK_RESPONSES['gcs score 14'];
+  if (normalized.includes('fatigue')) return MOCK_RESPONSES['cognitive fatigue tbi'];
+  return FALLBACK_RESPONSE;
+}
+
+async function doTranslate() {
+  const input = document.getElementById('tInput').value.trim();
+  if (!input) return;
+  const btn = document.getElementById('tBtn');
+  const btnText = document.getElementById('tBtnText');
+  const resultWrap = document.getElementById('resultWrap');
+  const resultText = document.getElementById('resultText');
+  const questionsSection = document.getElementById('questionsSection');
+  const questionsList = document.getElementById('questionsList');
+
+  btn.classList.add('loading');
+  btnText.innerHTML = '<div class="spin"></div> Translating…';
+  resultWrap.classList.remove('visible');
+
+  await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
+
+  const mock = getMockResponse(input);
+
+  resultText.innerHTML = mock.explanation.replace(/\n\n/g, '<br><br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  questionsList.innerHTML = '';
+
+  if (mock.questions && mock.questions.length) {
+    questionsSection.style.display = 'block';
+    mock.questions.forEach(q => {
+      const el = document.createElement('div');
+      el.className = 'q-row';
+      el.innerHTML = `<span class="q-chevron">›</span><span>${q}</span>`;
+      el.onclick = () => {
+        const journey = document.getElementById('screen-journey');
+        const list = journey.querySelector('.appt-right');
+        const addBtn = list.querySelector('.appt-add-q') || list;
+        const item = document.createElement('div');
+        item.className = 'appt-q-item';
+        item.onclick = () => item.classList.toggle('done');
+        item.innerHTML = `<div class="appt-check"></div><span>${q}</span>`;
+        const existingAdd = list.querySelector('button');
+        if (existingAdd) list.insertBefore(item, existingAdd);
+        else list.appendChild(item);
+        showTab('journey');
+      };
+      questionsList.appendChild(el);
+    });
+  } else {
+    questionsSection.style.display = 'none';
+  }
+
+  resultWrap.classList.add('visible');
+  btn.classList.remove('loading');
+  btnText.textContent = 'Translate';
+}
+
+document.getElementById('tInput').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') doTranslate();
+});
+
+// Build dots calendar
+const weekData = [
+  { label:'Wk14', days:['hd','l2','l1','hd','l2','l3','l2'] },
+  { label:'Wk15', days:['l2','l3','l2','l2','hd','l3','l3'] },
+  { label:'Wk16', days:['l3','l2','l3','l4','l3','l4','l3'] },
+  { label:'Wk17', days:['l4','l3','l4','l3','l4','l5','l4'] },
+  { label:'Wk18', days:['l4','l5','l3','td','e','e','e'] },
+];
+const grid = document.getElementById('dotsGrid');
+weekData.forEach(w => {
+  const row = document.createElement('div');
+  row.className = 'dots-row';
+  const lbl = document.createElement('div');
+  lbl.className = 'dots-wlabel';
+  lbl.textContent = w.label;
+  row.appendChild(lbl);
+  w.days.forEach(cls => {
+    const d = document.createElement('div');
+    d.className = 'dot ' + cls;
+    row.appendChild(d);
+  });
+  grid.appendChild(row);
+});
+
+// Note overlay
+function openNote() {
+  document.getElementById('noteOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('noteText').focus(), 350);
+}
+function closeNote() {
+  document.getElementById('noteOverlay').classList.remove('open');
+  document.getElementById('noteText').value = '';
+  document.querySelectorAll('.note-tag-btn.sel').forEach(b => b.classList.remove('sel'));
+}
+function toggleTag(el) { el.classList.toggle('sel'); }
+function saveNote() {
+  const text = document.getElementById('noteText').value.trim();
+  if (!text) return;
+  closeNote();
+}
+</script>
