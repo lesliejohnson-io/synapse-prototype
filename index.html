@@ -33,28 +33,44 @@
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; overflow:hidden; }
 
-  body {
-  background: #0a0a0a;
+body {
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'DM Sans', sans-serif;
-  padding: 28px;
-  min-height: 100%;
-  box-sizing: border-box;
 }
 
-/* ── Phone shell ── */
-.phone-shell {
+/* ── Outer wrapper — sized to the iPhone PNG ── */
+.phone-outer {
+  position: relative;
   width: 390px;
   height: 844px;
+  flex-shrink: 0;
+}
+
+/* iPhone PNG sits on top of everything as a non-interactive overlay */
+.phone-frame-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ── Phone shell — inset to sit inside the PNG screen area ── */
+/* Adjust these values once you see how the PNG aligns */
+.phone-shell {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
   background: var(--cream);
-  border-radius: 48px;
+  border-radius: 44px;
   overflow: hidden;
-  position: relative;
-  box-shadow:
-    0 0 0 8px #3A91D3,
-    0 40px 80px rgba(0,0,0,0.6);
   display: flex;
   flex-direction: column;
 }
@@ -72,15 +88,6 @@ html, body { height:100%; overflow:hidden; }
 .status-time { font-size: 15px; font-weight: 500; color: var(--ink); letter-spacing: -0.02em; }
 .status-icons { display: flex; align-items: center; gap: 6px; }
 .status-icon { font-size: 12px; color: var(--ink-soft); }
-.notch {
-  position: absolute;
-  top: 0; left: 50%;
-  transform: translateX(-50%);
-  width: 120px; height: 34px;
-  background: #000000;
-  border-radius: 0 0 20px 20px;
-  z-index: 100;
-}
 
 /* ── Screen container ── */
 .screens {
@@ -539,11 +546,10 @@ html, body { height:100%; overflow:hidden; }
 .dh-blank {}
 .dh { font-family: 'DM Sans', sans-serif; font-size: 9px; color: var(--ink-faint); text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
 .dots-grid { display: flex; flex-direction: column; gap: 5px; }
-.dots-row { display: grid; grid-template-columns: 32px repeat(7, 1fr); gap: 3px; align-items: center; justify-items: center; }
+.dots-row { display: grid; grid-template-columns: 32px repeat(7, 1fr); gap: 4px; align-items: center; }
 .dots-wlabel { font-family: 'DM Sans', sans-serif; font-size: 9px; color: var(--ink-faint); text-align: right; padding-right: 5px; }
 .dot {
-  width: 14px;
-  height: 14px;
+  aspect-ratio: 1;
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.15s;
@@ -704,356 +710,342 @@ html, body { height:100%; overflow:hidden; }
 </head>
 <body>
 
-<!-- Phone shell -->
-<div class="phone-shell">
-  <div class="notch"></div>
+<!-- Outer wrapper with iPhone PNG overlay -->
+<div class="phone-outer">
 
-  <!-- Status bar -->
-  <div class="status-bar">
-    <span class="status-time">9:41</span>
-    <div class="status-icons">
-      <!-- Signal bars -->
-      <svg width="17" height="12" viewBox="0 0 17 12" fill="var(--ink)">
-        <rect x="0" y="7" width="3" height="5" rx="1"/>
-        <rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/>
-        <rect x="9" y="2" width="3" height="10" rx="1"/>
-        <rect x="13.5" y="0" width="3" height="12" rx="1"/>
-      </svg>
-      <!-- WiFi -->
-      <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round">
-        <path d="M1 4.5C3.5 2 6.5 1 8 1s4.5 1 7 3.5"/>
-        <path d="M3 7c1.4-1.4 3-2 5-2s3.6.6 5 2"/>
-        <path d="M5.5 9.5C6.2 8.8 7 8.5 8 8.5s1.8.3 2.5 1"/>
-        <circle cx="8" cy="11.5" r="1" fill="var(--ink)" stroke="none"/>
-      </svg>
-      <!-- Battery -->
-      <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
-        <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="var(--ink)" stroke-width="1"/>
-        <rect x="2" y="2" width="17" height="8" rx="1.5" fill="var(--ink)"/>
-        <path d="M22.5 4v4" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </div>
-  </div>
+  <!-- iPhone frame PNG — sits on top, pointer-events:none so app is still clickable -->
+  <img class="phone-frame-img" src="iphone.png" alt="">
 
-  <!-- Screens -->
-  <div class="screens">
+  <!-- App shell sits inside, inset to the screen area of the PNG -->
+  <div class="phone-shell">
 
-    <!-- ① TODAY -->
-    <div class="screen active screen-enter" id="screen-today">
-      <div class="today-header">
-        <div class="today-greeting">Good morning,<br><em>Jamie.</em></div>
-        <div class="today-meta">Thu, Mar 19 &nbsp;·&nbsp; David, Week 18</div>
-      </div>
-      <div class="today-body stagger">
-        <div class="priority-card urgent" onclick="goToTranslate()">
-          <div class="pc-eyebrow">Right now</div>
-          <div class="pc-title">Dr. Park left a note after yesterday's visit</div>
-          <div class="pc-sub">"mild improvement in executive function, continued post-traumatic amnesia"</div>
-          <div class="pc-action">Translate it <span class="pc-arrow">→</span></div>
-        </div>
-
-        <div class="s-divider">
-          <div class="s-divider-line"></div>
-          <div class="s-divider-label">Also today</div>
-          <div class="s-divider-line"></div>
-        </div>
-
-        <div class="secondary-card" onclick="goToJourney()">
-          <div class="sc-icon" style="background:var(--sage-pale);color:var(--sage);font-size:20px;font-weight:500;">5</div>
-          <div class="sc-body">
-            <div class="sc-title">Days until neurology</div>
-            <div class="sc-sub">2 prep questions saved — add more</div>
-          </div>
-          <div class="sc-chev">›</div>
-        </div>
-
-        <div class="secondary-card" onclick="showTab('community')">
-          <div class="sc-icon" style="background:var(--cream2);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-mid)" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-          </div>
-          <div class="sc-body">
-            <div class="sc-title">Week-18 fatigue thread</div>
-            <div class="sc-sub">14 replies — active now</div>
-          </div>
-          <div class="sc-badge">new</div>
-        </div>
-
-        <div class="caregiver-note">
-          "You've checked in 17 of the last 21 days.<br>That consistency is part of his healing."
-        </div>
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <span class="status-icon">●●●</span>
+        <span class="status-icon">WiFi</span>
+        <span class="status-icon">100%</span>
       </div>
     </div>
 
-    <!-- ② TRANSLATE -->
-    <div class="screen" id="screen-translate">
-      <div class="translate-header">
-        <div class="translate-title">What did they<br>actually mean?</div>
-        <div class="translate-sub">Plain language, always one tap away.</div>
-      </div>
-      <div class="translate-body">
-        <div class="new-note-pill" id="notePill" onclick="loadDrNote()">
-          <div class="np-from">New · Dr. Park · 2h ago</div>
-          <div class="np-quote">"mild improvement in executive function, continued post-traumatic amnesia"</div>
-          <div class="np-action">Translate this note →</div>
-        </div>
+    <!-- Screens -->
+    <div class="screens">
 
-        <div class="translate-input-wrap">
-          <textarea class="translate-textarea" id="tInput" placeholder="Type or paste any medical term, note, or phrase…"></textarea>
-          <button class="translate-send" id="tBtn" onclick="doTranslate()">
-            <span id="tBtnText">Translate</span>
-          </button>
+      <!-- ① TODAY -->
+      <div class="screen active screen-enter" id="screen-today">
+        <div class="today-header">
+          <div class="today-greeting">Good morning,<br><em>Jamie.</em></div>
+          <div class="today-meta">Thu, Mar 19 &nbsp;·&nbsp; David, Week 18</div>
         </div>
+        <div class="today-body stagger">
+          <div class="priority-card urgent" onclick="goToTranslate()">
+            <div class="pc-eyebrow">Right now</div>
+            <div class="pc-title">Dr. Park left a note after yesterday's visit</div>
+            <div class="pc-sub">"mild improvement in executive function, continued post-traumatic amnesia"</div>
+            <div class="pc-action">Translate it <span class="pc-arrow">→</span></div>
+          </div>
 
-        <div class="chips">
-          <div class="chip" onclick="fillChip('post-traumatic amnesia')">post-traumatic amnesia</div>
-          <div class="chip" onclick="fillChip('executive function')">executive function</div>
-          <div class="chip" onclick="fillChip('diffuse axonal injury')">diffuse axonal injury</div>
-          <div class="chip" onclick="fillChip('GCS score 14')">GCS 14</div>
-          <div class="chip" onclick="fillChip('cognitive fatigue TBI')">cognitive fatigue</div>
-        </div>
+          <div class="s-divider">
+            <div class="s-divider-line"></div>
+            <div class="s-divider-label">Also today</div>
+            <div class="s-divider-line"></div>
+          </div>
 
-        <div class="result-wrap" id="resultWrap">
-          <div class="result-eyebrow">In plain language</div>
-          <div class="result-text" id="resultText"></div>
-          <div id="questionsSection" style="display:none">
-            <div class="questions-label">Questions to ask Dr. Park</div>
-            <div id="questionsList"></div>
-            <div class="q-add-hint">Tap any question to add it to your appointment prep</div>
+          <div class="secondary-card" onclick="goToJourney()">
+            <div class="sc-icon" style="background:var(--sage-pale);color:var(--sage);font-size:20px;font-weight:500;">5</div>
+            <div class="sc-body">
+              <div class="sc-title">Days until neurology</div>
+              <div class="sc-sub">2 prep questions saved — add more</div>
+            </div>
+            <div class="sc-chev">›</div>
+          </div>
+
+          <div class="secondary-card" onclick="showTab('community')">
+            <div class="sc-icon" style="background:var(--cream2);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-mid)" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div class="sc-body">
+              <div class="sc-title">Week-18 fatigue thread</div>
+              <div class="sc-sub">14 replies — active now</div>
+            </div>
+            <div class="sc-badge">new</div>
+          </div>
+
+          <div class="caregiver-note">
+            "You've checked in 17 of the last 21 days.<br>That consistency is part of his healing."
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ③ JOURNEY -->
-    <div class="screen" id="screen-journey">
-      <div class="journey-body">
+      <!-- ② TRANSLATE -->
+      <div class="screen" id="screen-translate">
+        <div class="translate-header">
+          <div class="translate-title">What did they<br>actually mean?</div>
+          <div class="translate-sub">Plain language, always one tap away.</div>
+        </div>
+        <div class="translate-body">
+          <div class="new-note-pill" id="notePill" onclick="loadDrNote()">
+            <div class="np-from">New · Dr. Park · 2h ago</div>
+            <div class="np-quote">"mild improvement in executive function, continued post-traumatic amnesia"</div>
+            <div class="np-action">Translate this note →</div>
+          </div>
 
-        <!-- Recovery arc -->
-        <div>
-          <div class="journey-section-title">18 weeks and going strong.</div>
-          <div class="journey-section-sub" style="margin-bottom:12px;">Recovery isn't linear, and you're trending up.</div>
-          <div class="arc-card">
-            <div class="arc-card-inner">
-              <div class="arc-top">
-                <div>
-                  <div style="font-size:13px;font-weight:500;color:var(--ink);">David's recovery arc</div>
-                  <div style="font-size:11px;color:var(--ink-muted);">Weeks 1–18</div>
+          <div class="translate-input-wrap">
+            <textarea class="translate-textarea" id="tInput" placeholder="Type or paste any medical term, note, or phrase…"></textarea>
+            <button class="translate-send" id="tBtn" onclick="doTranslate()">
+              <span id="tBtnText">Translate</span>
+            </button>
+          </div>
+
+          <div class="chips">
+            <div class="chip" onclick="fillChip('post-traumatic amnesia')">post-traumatic amnesia</div>
+            <div class="chip" onclick="fillChip('executive function')">executive function</div>
+            <div class="chip" onclick="fillChip('diffuse axonal injury')">diffuse axonal injury</div>
+            <div class="chip" onclick="fillChip('GCS score 14')">GCS 14</div>
+            <div class="chip" onclick="fillChip('cognitive fatigue TBI')">cognitive fatigue</div>
+          </div>
+
+          <div class="result-wrap" id="resultWrap">
+            <div class="result-eyebrow">In plain language</div>
+            <div class="result-text" id="resultText"></div>
+            <div id="questionsSection" style="display:none">
+              <div class="questions-label">Questions to ask Dr. Park</div>
+              <div id="questionsList"></div>
+              <div class="q-add-hint">Tap any question to add it to your appointment prep</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ JOURNEY -->
+      <div class="screen" id="screen-journey">
+        <div class="journey-body">
+
+          <div>
+            <div class="journey-section-title">18 weeks. Look how far.</div>
+            <div class="journey-section-sub" style="margin-bottom:12px;">Recovery isn't linear — but the direction is real.</div>
+            <div class="arc-card">
+              <div class="arc-card-inner">
+                <div class="arc-top">
+                  <div>
+                    <div style="font-size:13px;font-weight:500;color:var(--ink);">David's recovery arc</div>
+                    <div style="font-size:11px;color:var(--ink-muted);">Weeks 1–18</div>
+                  </div>
+                  <div class="arc-badge">Wk 18 of 52</div>
                 </div>
-                <div class="arc-badge">Wk 18 of 52</div>
+                <svg class="arc-svg" viewBox="0 0 310 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#5272a8" stop-opacity="0.15"/>
+                      <stop offset="100%" stop-color="#5272a8" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <line x1="0" y1="28" x2="310" y2="28" stroke="#dde2ec" stroke-width="1"/>
+                  <line x1="0" y1="56" x2="310" y2="56" stroke="#dde2ec" stroke-width="1"/>
+                  <line x1="0" y1="84" x2="310" y2="84" stroke="#dde2ec" stroke-width="1"/>
+                  <text x="4" y="26" font-family="DM Sans" font-size="7" fill="#b0b8cc">High</text>
+                  <text x="4" y="54" font-family="DM Sans" font-size="7" fill="#b0b8cc">Mid</text>
+                  <text x="4" y="82" font-family="DM Sans" font-size="7" fill="#b0b8cc">Low</text>
+                  <path d="M24,94 C36,91 44,86 54,83 C64,80 70,82 80,77 C90,72 95,75 105,68 C115,61 120,64 130,57 C140,50 145,53 155,46 C165,39 170,42 180,35 C188,30 192,28 200,24" fill="url(#ag)"/>
+                  <path d="M24,94 C36,91 44,86 54,83 C64,80 70,82 80,77 C90,72 95,75 105,68 C115,61 120,64 130,57 C140,50 145,53 155,46 C165,39 170,42 180,35 C188,30 192,28 200,24" stroke="#5272a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M200,24 C212,20 222,17 234,13 C246,9 258,7 270,4" stroke="#5272a8" stroke-width="1.5" stroke-dasharray="4,5" stroke-linecap="round" opacity="0.3"/>
+                  <circle cx="54" cy="83" r="3.5" fill="#f4f6f9" stroke="#b0b8cc" stroke-width="1.5"/>
+                  <circle cx="105" cy="68" r="3.5" fill="#f4f6f9" stroke="#7090c4" stroke-width="1.5"/>
+                  <circle cx="155" cy="46" r="4" fill="#f4f6f9" stroke="#5272a8" stroke-width="2"/>
+                  <circle cx="180" cy="38" r="3.5" fill="#f4f6f9" stroke="#c48a2a" stroke-width="1.5"/>
+                  <circle cx="200" cy="24" r="5.5" fill="#5272a8"/>
+                  <circle cx="200" cy="24" r="9" fill="#5272a8" opacity="0.15"/>
+                  <text x="204" y="19" font-family="DM Sans" font-size="8" fill="#5272a8" font-weight="500">now</text>
+                  <text x="43" y="102" font-family="DM Sans" font-size="7" fill="#b0b8cc">Wk 3</text>
+                  <text x="96" y="82" font-family="DM Sans" font-size="7" fill="#7090c4">Wk 7</text>
+                  <text x="144" y="60" font-family="DM Sans" font-size="7" fill="#5272a8">Wk 12</text>
+                  <text x="168" y="53" font-family="DM Sans" font-size="7" fill="#c48a2a">Wk 15</text>
+                </svg>
               </div>
-              <svg class="arc-svg" viewBox="0 0 310 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#5272a8" stop-opacity="0.15"/>
-                    <stop offset="100%" stop-color="#5272a8" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <line x1="0" y1="28" x2="310" y2="28" stroke="#dde2ec" stroke-width="1"/>
-                <line x1="0" y1="56" x2="310" y2="56" stroke="#dde2ec" stroke-width="1"/>
-                <line x1="0" y1="84" x2="310" y2="84" stroke="#dde2ec" stroke-width="1"/>
-                <text x="4" y="26" font-family="DM Sans" font-size="7" fill="#b0b8cc">High</text>
-                <text x="4" y="54" font-family="DM Sans" font-size="7" fill="#b0b8cc">Mid</text>
-                <text x="4" y="82" font-family="DM Sans" font-size="7" fill="#b0b8cc">Low</text>
-                <path d="M24,94 C36,91 44,86 54,83 C64,80 70,82 80,77 C90,72 95,75 105,68 C115,61 120,64 130,57 C140,50 145,53 155,46 C165,39 170,42 180,35 C188,30 192,28 200,24" fill="url(#ag)"/>
-                <path d="M24,94 C36,91 44,86 54,83 C64,80 70,82 80,77 C90,72 95,75 105,68 C115,61 120,64 130,57 C140,50 145,53 155,46 C165,39 170,42 180,35 C188,30 192,28 200,24" stroke="#5272a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M200,24 C212,20 222,17 234,13 C246,9 258,7 270,4" stroke="#5272a8" stroke-width="1.5" stroke-dasharray="4,5" stroke-linecap="round" opacity="0.3"/>
-                <circle cx="54" cy="83" r="3.5" fill="#f4f6f9" stroke="#b0b8cc" stroke-width="1.5"/>
-                <circle cx="105" cy="68" r="3.5" fill="#f4f6f9" stroke="#7090c4" stroke-width="1.5"/>
-                <circle cx="155" cy="46" r="4" fill="#f4f6f9" stroke="#5272a8" stroke-width="2"/>
-                <circle cx="180" cy="38" r="3.5" fill="#f4f6f9" stroke="#c48a2a" stroke-width="1.5"/>
-                <circle cx="200" cy="24" r="5.5" fill="#5272a8"/>
-                <circle cx="200" cy="24" r="9" fill="#5272a8" opacity="0.15"/>
-                <text x="204" y="19" font-family="DM Sans" font-size="8" fill="#5272a8" font-weight="500">now</text>
-                <text x="43" y="102" font-family="DM Sans" font-size="7" fill="#b0b8cc">Wk 3</text>
-                <text x="96" y="82" font-family="DM Sans" font-size="7" fill="#7090c4">Wk 7</text>
-                <text x="144" y="60" font-family="DM Sans" font-size="7" fill="#5272a8">Wk 12</text>
-                <text x="168" y="53" font-family="DM Sans" font-size="7" fill="#c48a2a">Wk 15</text>
-              </svg>
-            </div>
-            <div class="arc-callout">
-              <strong>Week 12 was the turn.</strong> David formed full sentences unprompted. You logged it at 7am. You were the first to know.
-            </div>
-          </div>
-        </div>
-
-        <!-- Appointment countdown -->
-        <div>
-          <div class="journey-section-title" style="margin-bottom:10px;">Next appointment</div>
-          <div class="appt-card">
-            <div class="appt-left">
-              <div class="appt-num">5</div>
-              <div class="appt-unit">days</div>
-            </div>
-            <div class="appt-right">
-              <div class="appt-with">Dr. Park — Neurology</div>
-              <div class="appt-when">Tue, Mar 24 · 2:00 PM</div>
-              <div class="appt-qs-label">Prep questions</div>
-              <div class="appt-q-item" onclick="this.classList.toggle('done')">
-                <div class="appt-check"></div>
-                <span>What does "continued PTA" mean for David's daily routine?</span>
-              </div>
-              <div class="appt-q-item" onclick="this.classList.toggle('done')">
-                <div class="appt-check"></div>
-                <span>What milestone should we watch for next?</span>
+              <div class="arc-callout">
+                <strong>Week 12 was the turn.</strong> David formed full sentences unprompted. You logged it at 7am. You were the first to know.
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Symptom dots -->
-        <div>
-          <div class="journey-section-title">Your observations</div>
-          <div class="journey-section-sub" style="margin-bottom:12px;">Each dot is a day you checked in. Your words, made visible.</div>
-          <div class="dots-card">
-            <div class="day-headers">
-              <div class="dh-blank"></div>
-              <div class="dh">M</div><div class="dh">T</div><div class="dh">W</div>
-              <div class="dh">T</div><div class="dh">F</div><div class="dh">S</div><div class="dh">S</div>
-            </div>
-            <div class="dots-grid" id="dotsGrid"></div>
-            <div class="dots-legend">
-              <div class="leg"><div class="leg-dot" style="background:#b0c4e4"></div>quiet</div>
-              <div class="leg"><div class="leg-dot" style="background:#5272a8"></div>good day</div>
-              <div class="leg"><div class="leg-dot" style="background:var(--rust-pale);border:1px solid var(--rust-light)"></div>hard day</div>
-            </div>
-            <div class="dots-insight">
-              <strong>You've shown up 18 of the last 21 days.</strong> Tuesdays tend to run harder — usually after a full weekend.
+          <div>
+            <div class="journey-section-title" style="margin-bottom:10px;">Next appointment</div>
+            <div class="appt-card">
+              <div class="appt-left">
+                <div class="appt-num">5</div>
+                <div class="appt-unit">days</div>
+              </div>
+              <div class="appt-right">
+                <div class="appt-with">Dr. Park — Neurology</div>
+                <div class="appt-when">Tue, Mar 24 · 2:00 PM</div>
+                <div class="appt-qs-label">Prep questions</div>
+                <div class="appt-q-item" onclick="this.classList.toggle('done')">
+                  <div class="appt-check"></div>
+                  <span>What does "continued PTA" mean for David's daily routine?</span>
+                </div>
+                <div class="appt-q-item" onclick="this.classList.toggle('done')">
+                  <div class="appt-check"></div>
+                  <span>What milestone should we watch for next?</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-      </div>
-    </div>
-
-    <!-- ④ COMMUNITY -->
-    <div class="screen" id="screen-community">
-      <div class="community-header">
-        <div class="community-title">You're not alone<br>in this.</div>
-        <div class="community-sub">TBI Caregiver Circle · 847 members</div>
-      </div>
-      <div class="community-body">
-        <div class="thread">
-          <div class="thread-top">
-            <div class="thread-title">Week-18 fatigue — 14 hours of sleep, is this healing or regression?</div>
-            <span class="thread-tag tt-week">Wk 18</span>
-          </div>
-          <div class="thread-preview">"My neurologist called it cognitive fatigue — the brain rebuilding while you sleep. Peaked week 16 for us, eased by week 22…"</div>
-          <div class="thread-meta">
-            <div class="t-faces">
-              <div class="t-face" style="background:#5272a8">S</div>
-              <div class="t-face" style="background:#5e6e90">M</div>
-              <div class="t-face" style="background:#c48a2a">R</div>
-              <div class="t-face" style="background:#5a4a8a">T</div>
+          <div>
+            <div class="journey-section-title">Your observations</div>
+            <div class="journey-section-sub" style="margin-bottom:12px;">Each dot is a day you checked in. Your words, made visible.</div>
+            <div class="dots-card">
+              <div class="day-headers">
+                <div class="dh-blank"></div>
+                <div class="dh">M</div><div class="dh">T</div><div class="dh">W</div>
+                <div class="dh">T</div><div class="dh">F</div><div class="dh">S</div><div class="dh">S</div>
+              </div>
+              <div class="dots-grid" id="dotsGrid"></div>
+              <div class="dots-legend">
+                <div class="leg"><div class="leg-dot" style="background:#b0c4e4"></div>quiet</div>
+                <div class="leg"><div class="leg-dot" style="background:#5272a8"></div>good day</div>
+                <div class="leg"><div class="leg-dot" style="background:var(--rust-pale);border:1px solid var(--rust-light)"></div>hard day</div>
+              </div>
+              <div class="dots-insight">
+                <strong>You've shown up 18 of the last 21 days.</strong> Tuesdays tend to run harder — usually after a full weekend.
+              </div>
             </div>
-            <span class="t-count">14 replies · active 20m ago</span>
           </div>
-        </div>
 
-        <div class="thread">
-          <div class="thread-top">
-            <div class="thread-title">How to stay calm when you don't understand what the doctor is saying?</div>
-            <span class="thread-tag tt-tips">Tips</span>
-          </div>
-          <div class="thread-preview">"I write words down phonetically, translate after. No shame asking them to write it down. That's literally what the translator tab is for…"</div>
-          <div class="thread-meta">
-            <div class="t-faces">
-              <div class="t-face" style="background:#c48a2a">A</div>
-              <div class="t-face" style="background:#5272a8">L</div>
-            </div>
-            <span class="t-count">8 replies · active 4h ago</span>
-          </div>
-        </div>
-
-        <div class="thread">
-          <div class="thread-top">
-            <div class="thread-title">What questions should I bring to neurology at this stage of recovery?</div>
-            <span class="thread-tag tt-qa">Q&amp;A</span>
-          </div>
-          <div class="thread-preview">"Always ask what the next milestone looks like. Doctors assume you know what 'good progress' means — make them define it for your situation."</div>
-          <div class="thread-meta">
-            <div class="t-faces">
-              <div class="t-face" style="background:#5e6e90">C</div>
-              <div class="t-face" style="background:#5272a8">J</div>
-              <div class="t-face" style="background:#c48a2a">K</div>
-            </div>
-            <span class="t-count">22 replies · active 1h ago</span>
-          </div>
-        </div>
-
-        <div class="thread">
-          <div class="thread-top">
-            <div class="thread-title">For the caregivers who are also grieving — you're allowed to feel both things at once</div>
-            <span class="thread-tag tt-grief">Support</span>
-          </div>
-          <div class="thread-preview">"I love him and I grieve the person he was before the injury. Both are true. Both are allowed. You don't have to choose…"</div>
-          <div class="thread-meta">
-            <div class="t-faces">
-              <div class="t-face" style="background:#5a4a8a">P</div>
-              <div class="t-face" style="background:#5272a8">N</div>
-              <div class="t-face" style="background:#5e6e90">D</div>
-              <div class="t-face" style="background:#c48a2a">E</div>
-            </div>
-            <span class="t-count">41 replies · active 30m ago</span>
-          </div>
         </div>
       </div>
+
+      <!-- ④ COMMUNITY -->
+      <div class="screen" id="screen-community">
+        <div class="community-header">
+          <div class="community-title">You're not alone<br>in this.</div>
+          <div class="community-sub">TBI Caregiver Circle · 847 members</div>
+        </div>
+        <div class="community-body">
+          <div class="thread">
+            <div class="thread-top">
+              <div class="thread-title">Week-18 fatigue — 14 hours of sleep, is this healing or regression?</div>
+              <span class="thread-tag tt-week">Wk 18</span>
+            </div>
+            <div class="thread-preview">"My neurologist called it cognitive fatigue — the brain rebuilding while you sleep. Peaked week 16 for us, eased by week 22…"</div>
+            <div class="thread-meta">
+              <div class="t-faces">
+                <div class="t-face" style="background:#5272a8">S</div>
+                <div class="t-face" style="background:#5e6e90">M</div>
+                <div class="t-face" style="background:#c48a2a">R</div>
+                <div class="t-face" style="background:#5a4a8a">T</div>
+              </div>
+              <span class="t-count">14 replies · active 20m ago</span>
+            </div>
+          </div>
+
+          <div class="thread">
+            <div class="thread-top">
+              <div class="thread-title">How to stay calm when you don't understand what the doctor is saying?</div>
+              <span class="thread-tag tt-tips">Tips</span>
+            </div>
+            <div class="thread-preview">"I write words down phonetically, translate after. No shame asking them to write it down. That's literally what the translator tab is for…"</div>
+            <div class="thread-meta">
+              <div class="t-faces">
+                <div class="t-face" style="background:#c48a2a">A</div>
+                <div class="t-face" style="background:#5272a8">L</div>
+              </div>
+              <span class="t-count">8 replies · active 4h ago</span>
+            </div>
+          </div>
+
+          <div class="thread">
+            <div class="thread-top">
+              <div class="thread-title">What questions should I bring to neurology at this stage of recovery?</div>
+              <span class="thread-tag tt-qa">Q&amp;A</span>
+            </div>
+            <div class="thread-preview">"Always ask what the next milestone looks like. Doctors assume you know what 'good progress' means — make them define it for your situation."</div>
+            <div class="thread-meta">
+              <div class="t-faces">
+                <div class="t-face" style="background:#5e6e90">C</div>
+                <div class="t-face" style="background:#5272a8">J</div>
+                <div class="t-face" style="background:#c48a2a">K</div>
+              </div>
+              <span class="t-count">22 replies · active 1h ago</span>
+            </div>
+          </div>
+
+          <div class="thread">
+            <div class="thread-top">
+              <div class="thread-title">For the caregivers who are also grieving — you're allowed to feel both things at once</div>
+              <span class="thread-tag tt-grief">Support</span>
+            </div>
+            <div class="thread-preview">"I love him and I grieve the person he was before the injury. Both are true. Both are allowed. You don't have to choose…"</div>
+            <div class="thread-meta">
+              <div class="t-faces">
+                <div class="t-face" style="background:#5a4a8a">P</div>
+                <div class="t-face" style="background:#5272a8">N</div>
+                <div class="t-face" style="background:#5e6e90">D</div>
+                <div class="t-face" style="background:#c48a2a">E</div>
+              </div>
+              <span class="t-count">41 replies · active 30m ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /screens -->
+
+    <!-- Quick note overlay -->
+    <div class="note-overlay" id="noteOverlay">
+      <div class="note-backdrop" onclick="closeNote()"></div>
+      <div class="note-sheet">
+        <div class="note-sheet-handle"></div>
+        <div class="note-sheet-title">What did you notice?</div>
+        <textarea class="note-textarea" id="noteText" placeholder="Write it down before you forget — a word David used, something you observed, a question that just came to mind…"></textarea>
+        <div class="note-tags" id="noteTags">
+          <div class="note-tag-btn" onclick="toggleTag(this)">good moment</div>
+          <div class="note-tag-btn" onclick="toggleTag(this)">hard moment</div>
+          <div class="note-tag-btn" onclick="toggleTag(this)">symptom</div>
+          <div class="note-tag-btn" onclick="toggleTag(this)">question</div>
+          <div class="note-tag-btn" onclick="toggleTag(this)">for Dr. Park</div>
+        </div>
+        <button class="note-save-btn" onclick="saveNote()">Save observation</button>
+      </div>
     </div>
 
-  </div><!-- /screens -->
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <div class="nav-tab active" id="tab-today" onclick="showTab('today')">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="nav-tab-label">Today</div>
+      </div>
+      <div class="nav-tab" id="tab-translate" onclick="showTab('translate')">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div class="nav-tab-label">Translate</div>
+      </div>
+      <div class="nav-fab" onclick="openNote()">
+        <div class="fab-circle">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div class="nav-tab-label">Note</div>
+      </div>
+      <div class="nav-tab" id="tab-journey" onclick="showTab('journey')">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="nav-tab-label">Journey</div>
+      </div>
+      <div class="nav-tab" id="tab-community" onclick="showTab('community')">
+        <div class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="nav-tab-label">Community</div>
+      </div>
+    </div>
 
-  <!-- Quick note overlay -->
-  <div class="note-overlay" id="noteOverlay">
-    <div class="note-backdrop" onclick="closeNote()"></div>
-    <div class="note-sheet">
-      <div class="note-sheet-handle"></div>
-      <div class="note-sheet-title">What did you notice?</div>
-      <textarea class="note-textarea" id="noteText" placeholder="Write it down before you forget — a word David used, something you observed, a question that just came to mind…"></textarea>
-      <div class="note-tags" id="noteTags">
-        <div class="note-tag-btn" onclick="toggleTag(this)">good moment</div>
-        <div class="note-tag-btn" onclick="toggleTag(this)">hard moment</div>
-        <div class="note-tag-btn" onclick="toggleTag(this)">symptom</div>
-        <div class="note-tag-btn" onclick="toggleTag(this)">question</div>
-        <div class="note-tag-btn" onclick="toggleTag(this)">for Dr. Park</div>
-      </div>
-      <button class="note-save-btn" onclick="saveNote()">Save observation</button>
-    </div>
-  </div>
-
-  <!-- Bottom nav -->
-  <div class="bottom-nav">
-    <div class="nav-tab active" id="tab-today" onclick="showTab('today')">
-      <div class="nav-tab-icon">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      </div>
-      <div class="nav-tab-label">Today</div>
-    </div>
-    <div class="nav-tab" id="tab-translate" onclick="showTab('translate')">
-      <div class="nav-tab-icon">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </div>
-      <div class="nav-tab-label">Translate</div>
-    </div>
-    <div class="nav-fab" onclick="openNote()">
-      <div class="fab-circle">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </div>
-      <div class="nav-tab-label">Note</div>
-    </div>
-    <div class="nav-tab" id="tab-journey" onclick="showTab('journey')">
-      <div class="nav-tab-icon">
-        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      </div>
-      <div class="nav-tab-label">Journey</div>
-    </div>
-    <div class="nav-tab" id="tab-community" onclick="showTab('community')">
-      <div class="nav-tab-icon">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-      </div>
-      <div class="nav-tab-label">Community</div>
-    </div>
-  </div>
-
-</div><!-- /phone-shell -->
+  </div><!-- /phone-shell -->
+</div><!-- /phone-outer -->
 
 <script>
 const tabs = ['today','translate','journey','community'];
@@ -1075,9 +1067,7 @@ function showTab(name) {
 
 function goToTranslate() {
   showTab('translate');
-  setTimeout(() => {
-    loadDrNote();
-  }, 300);
+  setTimeout(() => { loadDrNote(); }, 300);
 }
 
 function goToJourney() { showTab('journey'); }
@@ -1187,7 +1177,6 @@ async function doTranslate() {
   await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
 
   const mock = getMockResponse(input);
-
   resultText.innerHTML = mock.explanation.replace(/\n\n/g, '<br><br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   questionsList.innerHTML = '';
 
@@ -1200,7 +1189,6 @@ async function doTranslate() {
       el.onclick = () => {
         const journey = document.getElementById('screen-journey');
         const list = journey.querySelector('.appt-right');
-        const addBtn = list.querySelector('.appt-add-q') || list;
         const item = document.createElement('div');
         item.className = 'appt-q-item';
         item.onclick = () => item.classList.toggle('done');
@@ -1249,7 +1237,6 @@ weekData.forEach(w => {
   grid.appendChild(row);
 });
 
-// Note overlay
 function openNote() {
   document.getElementById('noteOverlay').classList.add('open');
   setTimeout(() => document.getElementById('noteText').focus(), 350);
@@ -1266,3 +1253,5 @@ function saveNote() {
   closeNote();
 }
 </script>
+</body>
+</html>
