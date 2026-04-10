@@ -87,7 +87,7 @@ body {
 }
 .status-time { font-size: 15px; font-weight: 500; color: var(--ink); letter-spacing: -0.02em; }
 .status-icons { display: flex; align-items: center; gap: 6px; }
-.status-icon { font-size: 12px; color: var(--ink-soft); }
+
 
 /* ── Screen container ── */
 .screens {
@@ -723,9 +723,26 @@ body {
     <div class="status-bar">
       <span class="status-time">9:41</span>
       <div class="status-icons">
-        <span class="status-icon">●●●</span>
-        <span class="status-icon">WiFi</span>
-        <span class="status-icon">100%</span>
+        <!-- Signal bars -->
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="7" width="3" height="5" rx="0.5" fill="var(--ink)"/>
+          <rect x="4.5" y="4.5" width="3" height="7.5" rx="0.5" fill="var(--ink)"/>
+          <rect x="9" y="2" width="3" height="10" rx="0.5" fill="var(--ink)"/>
+          <rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="var(--ink)" opacity="0.3"/>
+        </svg>
+        <!-- WiFi -->
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="11" r="1.2" fill="var(--ink)"/>
+          <path d="M5 8.2a4.2 4.2 0 0 1 6 0" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+          <path d="M2.5 5.5a7.5 7.5 0 0 1 11 0" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+          <path d="M0.5 3a10.5 10.5 0 0 1 15 0" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.3"/>
+        </svg>
+        <!-- Battery -->
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="var(--ink)" stroke-width="1"/>
+          <rect x="2" y="2" width="17" height="8" rx="1.5" fill="var(--ink)"/>
+          <path d="M23 4v4a2 2 0 0 0 0-4z" fill="var(--ink)" opacity="0.4"/>
+        </svg>
       </div>
     </div>
 
