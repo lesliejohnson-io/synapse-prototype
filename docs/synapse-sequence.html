@@ -402,27 +402,28 @@ html, body {
 
 /* ── Replay button ── */
 .replay-btn {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.18);
   color: rgba(255,255,255,0.8);
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  padding: 10px 24px;
+  padding: 8px 18px;
   border-radius: 100px;
   cursor: pointer;
   opacity: 0;
+  transform: translateY(8px);
   transition: opacity 0.5s ease, transform 0.5s ease, background 0.2s;
   backdrop-filter: blur(8px);
   letter-spacing: 0.02em;
+  z-index: 999;
 }
 .replay-btn.visible {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 .replay-btn:hover {
   background: rgba(255,255,255,0.18);
@@ -521,9 +522,8 @@ html, body {
     </div>
   </div>
 
+  <button class="replay-btn" id="replayBtn" onclick="replay()">↺ Replay</button>
 </div>
-
-<button class="replay-btn" id="replayBtn" onclick="replay()">↺ Replay</button>
 
 <script>
 // ── helpers ──
