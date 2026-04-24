@@ -400,6 +400,20 @@ html, body {
   transform: translateY(0);
 }
 
+/* ── Fade overlay ── */
+.fade-overlay {
+  position: absolute;
+  inset: 0;
+  background: #111827;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.8s ease;
+}
+.fade-overlay.clear {
+  opacity: 0;
+}
+
 /* ── Replay button ── */
 .replay-btn {
   position: absolute;
@@ -433,6 +447,8 @@ html, body {
 <body>
 
 <div class="stage" id="stage">
+
+  <div class="fade-overlay" id="fadeOverlay"></div>
 
   <!-- PANEL 1: Today card -->
   <div class="panel active" id="panel-today">
@@ -522,7 +538,6 @@ html, body {
     </div>
   </div>
 
-  <button class="replay-btn" id="replayBtn" onclick="replay()">↺ Replay</button>
 </div>
 
 <script>
@@ -607,6 +622,9 @@ async function tapFirstQuestion() {
 
 // ── Main sequence ──
 async function runSequence() {
+  // Fade in
+  await wait(100);
+  document.getElementById('fadeOverlay').classList.add('clear');
   await wait(900);
 
   // 1 — tap the today card
@@ -662,59 +680,58 @@ async function runSequence() {
   document.getElementById('newQ').classList.add('dropped');
   await wait(800);
 
-  // 10 — show replay
-  document.getElementById('replayBtn').classList.add('visible');
+  // 10 — pause 3s on final card then auto-loop
+  await wait(3000);
+  replay();
 }
 
 function replay() {
-  // Reset everything
-  document.getElementById('replayBtn').classList.remove('visible');
+  // Step 1 — fade to dark first
+  const overlay = document.getElementById('fadeOverlay');
+  overlay.style.transition = 'opacity 0.5s ease';
+  overlay.classList.remove('clear');
 
-  // Reset panels
-  const p1 = document.getElementById('panel-today');
-  const p2 = document.getElementById('panel-translate');
-  const p3 = document.getElementById('panel-appt');
-
-  [p1, p2, p3].forEach(p => {
-    p.style.transition = 'none';
-    p.style.transform = 'translateX(100%)';
-  });
-  p1.style.transition = 'none';
-  p1.style.transform  = 'translateX(0)';
-
-  // Reset card tap
-  document.getElementById('todayCard').classList.remove('tapping');
-
-  // Reset textarea
-  const ta = document.getElementById('tTextarea');
-  ta.value = '';
-  ta.classList.remove('focused');
-
-  // Reset button
-  const btn = document.getElementById('tSendBtn');
-  btn.innerHTML = 'Translate';
-  btn.classList.remove('pressing', 'loading');
-
-  // Reset result
-  document.getElementById('resultWrap').classList.remove('visible');
-  document.querySelectorAll('.result-para').forEach(p => p.classList.remove('revealed'));
-  document.getElementById('questionsSection').classList.remove('revealed');
-  document.getElementById('q0').classList.remove('tapping');
-
-  // Reset scroll
-  document.getElementById('translateInner').scrollTop = 0;
-
-  // Reset appt card
-  document.getElementById('apptTitle').classList.remove('revealed');
-  document.getElementById('apptCard').classList.remove('revealed');
-  document.getElementById('newQ').classList.remove('dropped');
-
-  // Re-enable transitions after a tick
+  // Step 2 — wait for fade to complete, THEN reset everything
   setTimeout(() => {
-    [p1, p2, p3].forEach(p => { p.style.transition = ''; });
-    runSequence();
-  }, 50);
+    const p1 = document.getElementById('panel-today');
+    const p2 = document.getElementById('panel-translate');
+    const p3 = document.getElementById('panel-appt');
+
+    [p1, p2, p3].forEach(p => {
+      p.style.transition = 'none';
+      p.style.transform = 'translateX(100%)';
+    });
+    p1.style.transition = 'none';
+    p1.style.transform  = 'translateX(0)';
+
+    document.getElementById('todayCard').classList.remove('tapping');
+
+    const ta = document.getElementById('tTextarea');
+    ta.value = '';
+    ta.classList.remove('focused');
+
+    const btn = document.getElementById('tSendBtn');
+    btn.innerHTML = 'Translate';
+    btn.classList.remove('pressing', 'loading');
+
+    document.getElementById('resultWrap').classList.remove('visible');
+    document.querySelectorAll('.result-para').forEach(p => p.classList.remove('revealed'));
+    document.getElementById('questionsSection').classList.remove('revealed');
+    document.getElementById('q0').classList.remove('tapping');
+    document.getElementById('translateInner').scrollTop = 0;
+
+    document.getElementById('apptTitle').classList.remove('revealed');
+    document.getElementById('apptCard').classList.remove('revealed');
+    document.getElementById('newQ').classList.remove('dropped');
+
+    // Step 3 — re-enable transitions, then restart sequence
+    setTimeout(() => {
+      [p1, p2, p3].forEach(p => { p.style.transition = ''; });
+      runSequence();
+    }, 80);
+  }, 550); // wait for fade-out to finish
 }
+
 
 // Kick off
 runSequence();
