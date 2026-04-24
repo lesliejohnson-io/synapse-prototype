@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synapse — Story Sequence</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:        #f4f6f9;
+  --cream2:       #e8ecf2;
+  --paper:        #ffffff;
+  --border:       #d8dde8;
+  --border-soft:  #e4e8f0;
+  --ink:          #1a2035;
+  --ink-soft:     #2e3a52;
+  --ink-mid:      #4a5570;
+  --ink-muted:    #7a8499;
+  --ink-faint:    #b0b8cc;
+  --sage:         #5272a8;
+  --sage-mid:     #7090c4;
+  --sage-light:   #b0c4e4;
+  --sage-pale:    #eaf0f8;
+  --rust:         #c48a2a;
+  --rust-pale:    #fdf4e0;
+  --rust-light:   #f0d49a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  background: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+/* ── Stage ── */
+.stage {
+  width: 380px;
+  height: 620px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Panels (phone-push screens) ── */
+.panel {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  /* default: offscreen right */
+  transform: translateX(100%);
+  transition: transform 0.48s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  overflow: hidden;
+}
+
+.panel.active {
+  transform: translateX(0);
+}
+
+.panel.exit-left {
+  transform: translateX(-28%);
+}
+
+/* ── PANEL 1: Today card ── */
+#panel-today {
+  transform: translateX(0); /* starts visible */
+  background: transparent;
+  justify-content: center;
+}
+
+.today-card {
+  width: 340px;
+  background: var(--rust-pale);
+  border: 1px solid var(--rust-light);
+  border-radius: 20px;
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(196,138,42,0.15), 0 1px 4px rgba(0,0,0,0.08);
+}
+.today-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--rust);
+  border-radius: 3px 3px 0 0;
+}
+.tc-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 8px;
+}
+.tc-title {
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.tc-sub {
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.45;
+  font-style: italic;
+  font-family: 'Lora', serif;
+}
+.tc-action {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--rust);
+}
+.tc-arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+/* Tap ripple on today card */
+.today-card.tapping {
+  animation: cardTap 0.22s ease-out;
+}
+@keyframes cardTap {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+/* ── PANEL 2: Translate ── */
+#panel-translate {
+  background: var(--cream);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.translate-inner {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+}
+.translate-inner::-webkit-scrollbar { display: none; }
+
+.t-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  flex-shrink: 0;
+}
+.t-title {
+  font-family: 'Lora', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.t-sub { font-size: 13px; color: var(--ink-muted); }
+
+.t-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Textarea */
+.t-input-wrap { position: relative; }
+.t-textarea {
+  width: 100%;
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 13px 14px 44px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  resize: none;
+  height: 90px;
+  outline: none;
+  line-height: 1.5;
+  pointer-events: none;
+  transition: border-color 0.3s;
+}
+.t-textarea.focused { border-color: var(--sage); }
+
+.t-send-btn {
+  position: absolute;
+  right: 10px; bottom: 10px;
+  background: var(--sage);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 7px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: background 0.15s, transform 0.12s, box-shadow 0.12s;
+}
+.t-send-btn.pressing {
+  transform: scale(0.93);
+  background: #3a5890;
+}
+.t-send-btn.loading { opacity: 0.75; }
+
+/* Chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11px;
+  color: var(--ink-mid);
+}
+
+/* Result */
+.result-wrap {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: none;
+}
+.result-wrap.visible { display: block; }
+
+.result-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.result-eyebrow::after { content:''; flex:1; height:1px; background:var(--border-soft); }
+
+/* Paragraphs fade in one by one */
+.result-para {
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  margin-bottom: 12px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.result-para:last-of-type { margin-bottom: 0; }
+.result-para.revealed { opacity: 1; transform: translateY(0); }
+.result-para strong { font-weight: 600; color: var(--ink); }
+
+.questions-section {
+  margin-top: 14px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.questions-section.revealed { opacity: 1; transform: translateY(0); }
+.questions-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+}
+.q-row {
+  display: flex; gap: 9px; align-items: flex-start;
+  padding: 8px 10px;
+  background: var(--sage-pale);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.q-row.tapping {
+  background: var(--sage-light);
+  transform: scale(0.98);
+}
+.q-chevron { color: var(--sage); font-size: 12px; margin-top: 1px; flex-shrink: 0; }
+.q-add-hint {
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+  font-family: 'Lora', serif;
+}
+
+/* spinner */
+.spin {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spinA 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spinA { to { transform: rotate(360deg); } }
+
+/* ── PANEL 3: Appointment card ── */
+#panel-appt {
+  background: transparent;
+  justify-content: center;
+}
+
+.appt-outer {
+  width: 340px;
+}
+.appt-section-title {
+  font-family: 'Lora', serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--paper);
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: none;
+}
+.appt-section-title.revealed {
+  animation: fadeUp 0.5s ease forwards;
+}
+.appt-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.08);
+  opacity: 0;
+  animation: none;
+}
+.appt-card.revealed {
+  animation: fadeUp 0.5s ease 0.12s forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.appt-left {
+  background: var(--sage);
+  padding: 20px 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 76px;
+}
+.appt-num { font-family: 'Lora', serif; font-size: 40px; font-weight: 400; color: #fff; line-height: 1; }
+.appt-unit { font-size: 9px; letter-spacing: 0.08em; color: rgba(255,255,255,0.65); text-transform: uppercase; margin-top: 2px; }
+.appt-right { padding: 16px; flex: 1; }
+.appt-with { font-family: 'Lora', serif; font-size: 16px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.appt-when { font-size: 12px; color: var(--ink-muted); margin-bottom: 12px; }
+.appt-qs-label { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 7px; }
+.appt-q-item {
+  display: flex; gap: 8px; align-items: flex-start;
+  font-size: 12px; color: var(--ink-soft); line-height: 1.4;
+  padding: 6px 8px; background: var(--cream); border-radius: 8px;
+  margin-bottom: 5px;
+}
+.appt-check {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-faint);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s;
+}
+
+/* New question drops in */
+.appt-q-item.new-q {
+  opacity: 0;
+  transform: translateY(-8px);
+  background: var(--sage-pale);
+  border: 1px solid var(--sage-light);
+  transition: opacity 0.4s ease 0.6s, transform 0.4s ease 0.6s;
+}
+.appt-q-item.new-q.dropped {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Replay button ── */
+.replay-btn {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.8);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 100px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease, background 0.2s;
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.02em;
+}
+.replay-btn.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.replay-btn:hover {
+  background: rgba(255,255,255,0.18);
+}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- PANEL 1: Today card -->
+  <div class="panel active" id="panel-today">
+    <div class="today-card" id="todayCard">
+      <div class="tc-eyebrow">Right now</div>
+      <div class="tc-title">Dr. Park left a note after yesterday's visit</div>
+      <div class="tc-sub">"mild improvement in executive function, continued post-traumatic amnesia"</div>
+      <div class="tc-action">Translate it <span class="tc-arrow">→</span></div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: Translate -->
+  <div class="panel" id="panel-translate">
+    <div class="translate-inner" id="translateInner">
+      <div class="t-header">
+        <div class="t-title">What did they<br>actually mean?</div>
+        <div class="t-sub">Plain language, always one tap away.</div>
+      </div>
+      <div class="t-body">
+        <div class="t-input-wrap">
+          <textarea class="t-textarea" id="tTextarea" readonly></textarea>
+          <button class="t-send-btn" id="tSendBtn">Translate</button>
+        </div>
+        <div class="chips">
+          <div class="chip">post-traumatic amnesia</div>
+          <div class="chip">executive function</div>
+          <div class="chip">diffuse axonal injury</div>
+          <div class="chip">GCS 14</div>
+          <div class="chip">cognitive fatigue</div>
+        </div>
+
+        <div class="result-wrap" id="resultWrap">
+          <div class="result-eyebrow">In plain language</div>
+          <div class="result-para" id="para-0">Dr. Park is sharing two things here, and both are actually meaningful together.</div>
+          <div class="result-para" id="para-1"><strong>"Mild improvement in executive function"</strong> means David is getting a little better at the mental tasks that help him plan, organize, and make decisions — things like following a multi-step conversation, remembering to do something he said he would, or switching between two topics without getting lost. You may have already noticed this without having a name for it.</div>
+          <div class="result-para" id="para-2"><strong>"Continued post-traumatic amnesia"</strong> means his brain is still in a phase where forming new consistent memories is unreliable. This is very normal at week 18 after a moderate TBI. It doesn't mean he won't get there — it means the brain is still doing repair work that hasn't fully completed yet. Days that seem like setbacks are usually part of this phase, not signs of regression.</div>
+          <div class="result-para" id="para-3">Taken together, this note is actually cautiously hopeful. Progress is happening — it's just slower and less linear than we'd like.</div>
+
+          <div class="questions-section" id="questionsSection">
+            <div class="questions-label">Questions to ask Dr. Park</div>
+            <div class="q-row" id="q0">
+              <span class="q-chevron">›</span>
+              <span>What would "resolved" post-traumatic amnesia look like for David, and what typically triggers that shift?</span>
+            </div>
+            <div class="q-row" id="q1">
+              <span class="q-chevron">›</span>
+              <span>Are there specific things we should be doing at home — or avoiding — during this phase that could help the memory consolidation process?</span>
+            </div>
+            <div class="q-row" id="q2">
+              <span class="q-chevron">›</span>
+              <span>How will we know when executive function has improved enough to affect his daily independence?</span>
+            </div>
+            <div class="q-add-hint">Tap any question to add it to your appointment prep</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: Appointment card -->
+  <div class="panel" id="panel-appt">
+    <div class="appt-outer">
+      <div class="appt-section-title" id="apptTitle">Next appointment</div>
+      <div class="appt-card" id="apptCard">
+        <div class="appt-left">
+          <div class="appt-num">5</div>
+          <div class="appt-unit">days</div>
+        </div>
+        <div class="appt-right">
+          <div class="appt-with">Dr. Park — Neurology</div>
+          <div class="appt-when">Tue, Mar 24 · 2:00 PM</div>
+          <div class="appt-qs-label">Prep questions</div>
+          <div class="appt-q-item">
+            <div class="appt-check"></div>
+            <span>What does "continued PTA" mean for David's daily routine?</span>
+          </div>
+          <div class="appt-q-item">
+            <div class="appt-check"></div>
+            <span>What milestone should we watch for next?</span>
+          </div>
+          <div class="appt-q-item new-q" id="newQ">
+            <div class="appt-check"></div>
+            <span>What would "resolved" post-traumatic amnesia look like for David, and what typically triggers that shift?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="replay-btn" id="replayBtn" onclick="replay()">↺ Replay</button>
+
+<script>
+// ── helpers ──
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function setPanel(id) {
+  const panels = document.querySelectorAll('.panel');
+  panels.forEach(p => {
+    p.classList.remove('active', 'exit-left');
+    if (p.id !== id) {
+      // panels that have already been shown exit left, others stay right
+    }
+  });
+  document.getElementById(id).classList.add('active');
+}
+
+function pushTo(fromId, toId) {
+  const from = document.getElementById(fromId);
+  const to   = document.getElementById(toId);
+  // slide from left-exit, bring to in from right
+  to.style.transition = 'none';
+  to.style.transform  = 'translateX(100%)';
+  to.offsetHeight; // force reflow
+  to.style.transition = '';
+  requestAnimationFrame(() => {
+    to.style.transform   = 'translateX(0)';
+    from.style.transform = 'translateX(-28%)';
+  });
+}
+
+// typewriter-style fill for textarea
+async function typeText(el, text, speed = 22) {
+  el.value = '';
+  el.classList.add('focused');
+  for (let i = 0; i < text.length; i++) {
+    el.value += text[i];
+    await wait(speed + Math.random() * 14);
+  }
+}
+
+async function revealParagraphs() {
+  const paras = document.querySelectorAll('.result-para');
+  for (let i = 0; i < paras.length; i++) {
+    await wait(i === 0 ? 0 : 620);
+    paras[i].classList.add('revealed');
+  }
+  await wait(700);
+  document.getElementById('questionsSection').classList.add('revealed');
+}
+
+async function scrollToQuestions() {
+  const inner = document.getElementById('translateInner');
+  const qs = document.getElementById('questionsSection');
+  const targetScroll = qs.offsetTop - 40;
+  const startScroll = inner.scrollTop;
+  const dist = targetScroll - startScroll;
+  const duration = 900;
+  const start = performance.now();
+  return new Promise(resolve => {
+    function step(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease in-out
+      const ease = progress < 0.5
+        ? 2 * progress * progress
+        : -1 + (4 - 2 * progress) * progress;
+      inner.scrollTop = startScroll + dist * ease;
+      if (progress < 1) requestAnimationFrame(step);
+      else resolve();
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+async function tapFirstQuestion() {
+  const q0 = document.getElementById('q0');
+  q0.classList.add('tapping');
+  await wait(300);
+  q0.classList.remove('tapping');
+}
+
+// ── Main sequence ──
+async function runSequence() {
+  await wait(900);
+
+  // 1 — tap the today card
+  const card = document.getElementById('todayCard');
+  card.classList.add('tapping');
+  await wait(220);
+  card.classList.remove('tapping');
+  await wait(160);
+
+  // 2 — push to translate
+  pushTo('panel-today', 'panel-translate');
+  await wait(600);
+
+  // 3 — type into textarea
+  const textarea = document.getElementById('tTextarea');
+  await typeText(textarea, 'mild improvement in executive function, continued post-traumatic amnesia', 28);
+  await wait(500);
+
+  // 4 — press translate button
+  const btn = document.getElementById('tSendBtn');
+  btn.classList.add('pressing');
+  await wait(180);
+  btn.classList.remove('pressing');
+  btn.classList.add('loading');
+  btn.innerHTML = '<div class="spin"></div> Translating…';
+  await wait(1100);
+
+  // 5 — show result, fade paragraphs
+  btn.innerHTML = 'Translate';
+  btn.classList.remove('loading');
+  document.getElementById('resultWrap').classList.add('visible');
+  revealParagraphs(); // don't await — let scroll happen concurrently after a bit
+
+  // wait for 3 paras to land, then start scroll
+  await wait(2200);
+  await scrollToQuestions();
+  await wait(800);
+
+  // 6 — tap question
+  await tapFirstQuestion();
+  await wait(500);
+
+  // 7 — push to appointment
+  pushTo('panel-translate', 'panel-appt');
+  await wait(200);
+
+  // 8 — reveal appt card
+  document.getElementById('apptTitle').classList.add('revealed');
+  document.getElementById('apptCard').classList.add('revealed');
+  await wait(800);
+
+  // 9 — drop in new question
+  document.getElementById('newQ').classList.add('dropped');
+  await wait(800);
+
+  // 10 — show replay
+  document.getElementById('replayBtn').classList.add('visible');
+}
+
+function replay() {
+  // Reset everything
+  document.getElementById('replayBtn').classList.remove('visible');
+
+  // Reset panels
+  const p1 = document.getElementById('panel-today');
+  const p2 = document.getElementById('panel-translate');
+  const p3 = document.getElementById('panel-appt');
+
+  [p1, p2, p3].forEach(p => {
+    p.style.transition = 'none';
+    p.style.transform = 'translateX(100%)';
+  });
+  p1.style.transition = 'none';
+  p1.style.transform  = 'translateX(0)';
+
+  // Reset card tap
+  document.getElementById('todayCard').classList.remove('tapping');
+
+  // Reset textarea
+  const ta = document.getElementById('tTextarea');
+  ta.value = '';
+  ta.classList.remove('focused');
+
+  // Reset button
+  const btn = document.getElementById('tSendBtn');
+  btn.innerHTML = 'Translate';
+  btn.classList.remove('pressing', 'loading');
+
+  // Reset result
+  document.getElementById('resultWrap').classList.remove('visible');
+  document.querySelectorAll('.result-para').forEach(p => p.classList.remove('revealed'));
+  document.getElementById('questionsSection').classList.remove('revealed');
+  document.getElementById('q0').classList.remove('tapping');
+
+  // Reset scroll
+  document.getElementById('translateInner').scrollTop = 0;
+
+  // Reset appt card
+  document.getElementById('apptTitle').classList.remove('revealed');
+  document.getElementById('apptCard').classList.remove('revealed');
+  document.getElementById('newQ').classList.remove('dropped');
+
+  // Re-enable transitions after a tick
+  setTimeout(() => {
+    [p1, p2, p3].forEach(p => { p.style.transition = ''; });
+    runSequence();
+  }, 50);
+}
+
+// Kick off
+runSequence();
+</script>
+</body>
+</html>
